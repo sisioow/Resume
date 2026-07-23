@@ -30,7 +30,7 @@ export const magicPrompts = [
 
 export const about = {
   summary:
-    '桂林电子科技大学数字媒体技术背景，现任 Agent 开发工程师。擅长把 LLM、MCP、代码生成 CLI 编排成可落地的交付链路，也有法院场景与应用商店多端上架经验。',
+    '现任 Agent 开发工程师。擅长把 LLM、MCP、代码生成 CLI 编排成可落地的交付链路，也有法院场景与应用商店多端上架经验。',
   highlights: [
     '代表作 workflow_uniapp：本地 Agent 从需求到 UniApp 工程闭环',
     '可独立承担产品方案、UI 与多端开发，交付效率显著提升',
@@ -67,12 +67,6 @@ export const experiences = [
     ],
   },
 ]
-
-export const education = {
-  school: '桂林电子科技大学',
-  major: '数字媒体技术 · 本科',
-  period: '2021.09 — 2025.06',
-}
 
 export type Impact = { value: string; label: string }
 

@@ -2,7 +2,6 @@ import './style.css'
 import {
   about,
   demos,
-  education,
   experiences,
   magicPrompts,
   projects,
@@ -278,7 +277,6 @@ function render(): string {
             )
             .join('')}
         </div>
-        <p class="edu reveal">${education.school} · ${education.major} · ${education.period}</p>
       </section>
 
       <section id="contact" class="section contact">
