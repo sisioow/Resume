@@ -10,6 +10,8 @@ export const site = {
   phone: '155-8774-2070',
   github: 'https://github.com/sisioow',
   gitee: '',
+  /** 阿里云 OSS 静态站地址（国内镜像，配置好后填这里） */
+  mirror: '',
   resumePdf: './resume.pdf',
 }
 

@@ -806,6 +806,16 @@ button {
   text-decoration: none;
 }
 
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.1rem;
+}
+
+.footer-links a:hover {
+  color: var(--accent-deep);
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(0.9rem);

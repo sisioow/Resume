@@ -280,7 +280,11 @@ function render(): string {
 
     <footer class="footer">
       <span>© ${new Date().getFullYear()} ${site.name}</span>
-      <a href="#top">回到顶部</a>
+      <span class="footer-links">
+        <a href="https://sisioow.github.io/Resume/">GitHub Pages</a>
+        ${site.mirror ? `<a href="${site.mirror}">国内镜像</a>` : ''}
+        <a href="#top">回到顶部</a>
+      </span>
     </footer>
   `
 }

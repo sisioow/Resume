@@ -1,0 +1,67 @@
+name: Deploy China mirror to Aliyun OSS
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: aliyun-oss
+  cancel-in-progress: true
+
+jobs:
+  deploy-oss:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Aliyun secrets
+        id: check
+        env:
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+          ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+        run: |
+          if [ -z "$ALIYUN_ACCESS_KEY_ID" ] || [ -z "$ALIYUN_ACCESS_KEY_SECRET" ] || [ -z "$ALIYUN_OSS_BUCKET" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置 ALIYUN_* Secrets，跳过 OSS 镜像部署。见 README「阿里云 OSS 国内镜像」。"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.configured == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.configured == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build site
+        if: steps.check.outputs.configured == 'true'
+        working-directory: site
+        run: |
+          npm install
+          npm run build
+
+      - name: Install ossutil
+        if: steps.check.outputs.configured == 'true'
+        run: |
+          curl -fsSL -o ossutil https://gosspublic.alicdn.com/ossutil/1.7.19/ossutil64
+          chmod +x ossutil
+
+      - name: Sync dist to OSS
+        if: steps.check.outputs.configured == 'true'
+        env:
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+          ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+          ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+        run: |
+          set -euo pipefail
+          ENDPOINT="${ALIYUN_OSS_ENDPOINT:-oss-cn-hangzhou.aliyuncs.com}"
+          ./ossutil -e "$ENDPOINT" -i "$ALIYUN_ACCESS_KEY_ID" -k "$ALIYUN_ACCESS_KEY_SECRET" \
+            cp -rf site/dist/ "oss://${ALIYUN_OSS_BUCKET}/" --update
+          echo "Synced to oss://${ALIYUN_OSS_BUCKET}/"
+          WEB_HOST="${ALIYUN_OSS_BUCKET}.${ENDPOINT/oss-/oss-website-}"
+          echo "Static website URL: http://${WEB_HOST}/"
