@@ -10,8 +10,14 @@ export const site = {
   phone: '155-8774-2070',
   github: 'https://github.com/sisioow',
   gitee: '',
-  /** 阿里云 OSS 静态站地址（国内镜像） */
-  mirror: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/',
+  /**
+   * 国内可预览入口（不要填 OSS 默认域名，会被强制下载）
+   * 推荐填 Cloudflare Pages：https://xxx.pages.dev
+   */
+  mirror: '',
+  /** OSS 仅作备份同步，默认域名无法在线预览 HTML */
+  ossBackup: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html',
+
   resumePdf: './resume.pdf',
 }
 

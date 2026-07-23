@@ -6,8 +6,12 @@
 
 | 渠道 | 地址 | 说明 |
 |------|------|------|
-| GitHub Pages | https://sisioow.github.io/Resume/ | 海外友好，国内可能需加速 |
-| **阿里云 OSS 镜像（国内）** | https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/ | 免翻墙推荐 |
+| GitHub Pages | https://sisioow.github.io/Resume/ | 海外稳定 |
+| **国内可预览镜像** | 见 [docs/国内镜像说明.md](docs/国内镜像说明.md) | **推荐 Cloudflare Pages（免备案）** |
+| 阿里云 OSS | 仅作文件备份 | 默认域名会**强制下载** HTML，不能当网站入口 |
+
+> 原因：阿里云对 OSS 默认域名访问 HTML 会加 `Content-Disposition: attachment`，浏览器只会下载。要在线打开必须绑定**备案自定义域名**，或改用 Cloudflare Pages / Gitee Pages。
+
 
 ## 本地预览
 

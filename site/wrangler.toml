@@ -1,0 +1,8 @@
+# Cloudflare Pages 构建配置（也可在控制台 Connect Git 时填写同样选项）
+# Root directory: site
+# Build command: npm run build
+# Build output directory: dist
+
+name = "shihongwei-resume"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "dist"
