@@ -7,7 +7,7 @@
 | 渠道 | 地址 | 说明 |
 |------|------|------|
 | GitHub Pages | https://sisioow.github.io/Resume/ | 海外友好，国内可能需加速 |
-| **阿里云 OSS 镜像** | 配置完成后见下方 | **国内免翻墙推荐** |
+| **阿里云 OSS 镜像（国内）** | https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html | 免翻墙推荐 |
 
 ## 本地预览
 
