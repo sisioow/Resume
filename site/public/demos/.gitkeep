@@ -1,0 +1,3 @@
+# 演示录屏目录
+# 把 .mp4 / .webm 放这里，并在 src/data.ts 的 demos[].src 填写路径，例如：
+# src: '/demos/agent-pipeline.mp4'
