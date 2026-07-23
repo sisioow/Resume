@@ -7,10 +7,9 @@ export const site = {
   location: '湖北 · 远程协作',
   email: '15587742070@163.com',
   phone: '155-8774-2070',
-  /** 后续填入 GitHub / Gitee 主页 */
-  github: '',
+  github: 'https://github.com/sisioow',
   gitee: '',
-  resumePdf: '/resume.pdf',
+  resumePdf: './resume.pdf',
 }
 
 export const about = {
@@ -148,9 +147,9 @@ export type Repo = {
 
 export const repos: Repo[] = [
   {
-    name: 'portfolio-site',
+    name: 'sisioow/Resume',
     description: '本站源码（个人作品集站点）',
-    url: '', // 推送到 GitHub 后填入
+    url: 'https://github.com/sisioow/Resume',
     language: 'TypeScript',
   },
   {
