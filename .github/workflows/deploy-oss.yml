@@ -47,8 +47,10 @@ jobs:
       - name: Install ossutil
         if: steps.check.outputs.configured == 'true'
         run: |
-          curl -fsSL -o ossutil https://gosspublic.alicdn.com/ossutil/1.7.19/ossutil64
+          # 1.7.19 已 404，使用仍可用的 1.7.18
+          curl -fsSL -o ossutil https://gosspublic.alicdn.com/ossutil/1.7.18/ossutil64
           chmod +x ossutil
+          ./ossutil --version
 
       - name: Sync dist to OSS
         if: steps.check.outputs.configured == 'true'
