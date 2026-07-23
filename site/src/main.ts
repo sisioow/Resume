@@ -26,17 +26,28 @@ function linkOrSoon(url: string | undefined, label: string): string {
 }
 
 function renderProject(p: Project): string {
+  const details = p.details?.length
+    ? `<div class="work-details">${p.details.map((d) => `<p>${d}</p>`).join('')}</div>`
+    : ''
+  const highlights = p.highlights?.length
+    ? `<ul class="work-highlights">${p.highlights.map((h) => `<li>${h}</li>`).join('')}</ul>`
+    : ''
+
   return `
-    <article class="work-item reveal" id="${p.id}">
+    <article class="work-item reveal${p.featured ? ' is-featured' : ''}" id="${p.id}">
       <div class="work-meta">
+        ${p.featured ? '<span class="work-badge">最新作品</span>' : ''}
         <span class="work-tag">${p.tag}</span>
         <span class="work-status status-${p.status}">${statusLabel[p.status]}</span>
       </div>
       <h3>${p.name}</h3>
-      <p>${p.description}</p>
+      <p class="work-summary">${p.description}</p>
+      ${details}
+      ${highlights}
       <ul class="stack">${p.stack.map((s) => `<li>${s}</li>`).join('')}</ul>
       <div class="work-links">
         ${linkOrSoon(p.repo, '源码')}
+        ${linkOrSoon(p.docs, '详细文档')}
         ${linkOrSoon(p.demo, '在线演示')}
         ${linkOrSoon(p.video, '演示录屏')}
       </div>
