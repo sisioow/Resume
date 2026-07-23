@@ -403,6 +403,25 @@ button {
   line-height: 1.75;
 }
 
+.spotlight-video {
+  margin-top: 1.5rem;
+  max-width: 48rem;
+}
+
+.spotlight-video video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #0c1a28;
+  object-fit: contain;
+}
+
+.spotlight-video-cap {
+  margin: 0.55rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 .impact-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

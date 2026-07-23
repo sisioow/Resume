@@ -131,7 +131,7 @@ export const projects: Project[] = [
     repo: 'https://github.com/sisioow/workflow_uniapp',
     docs: 'https://github.com/sisioow/workflow_uniapp/blob/main/docs/工作流说明.md',
     demo: '',
-    video: '',
+    video: './demos/workflow-uniapp.mp4',
     stack: ['Python', 'FastAPI', 'UniApp', 'Stitch MCP', 'Claude', 'Cursor', 'Codex'],
   },
   {
@@ -224,9 +224,10 @@ export type Demo = {
 
 export const demos: Demo[] = [
   {
-    title: 'workflow_uniapp 演示',
-    description: '录屏位预留。可先通过仓库 README 与工作流说明了解完整能力。',
-    src: '',
+    title: 'workflow_uniapp 工作流演示',
+    description: '代表作实录：从产品名到可交付 UniApp 工程的端到端过程。',
+    src: './demos/workflow-uniapp.mp4',
+    poster: './demos/workflow-uniapp-poster.jpg',
     external: 'https://github.com/sisioow/workflow_uniapp',
   },
 ]

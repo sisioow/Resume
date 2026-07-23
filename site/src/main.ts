@@ -56,6 +56,20 @@ function renderFeatured(p: Project): string {
       )
       .join('') ?? ''
 
+  const video = p.video
+    ? `
+      <div class="spotlight-video reveal">
+        <video
+          controls
+          preload="metadata"
+          playsinline
+          poster="./demos/workflow-uniapp-poster.jpg"
+          src="${p.video}"
+        ></video>
+        <p class="spotlight-video-cap">演示录屏 · 可全屏观看</p>
+      </div>`
+    : ''
+
   return `
     <section id="spotlight" class="spotlight">
       <div class="spotlight-glow" aria-hidden="true"></div>
@@ -65,6 +79,8 @@ function renderFeatured(p: Project): string {
         <p class="spotlight-hook">${p.hook}</p>
         <p class="spotlight-desc">${p.description}</p>
 
+        ${video}
+
         <div class="impact-row reveal">${impact}</div>
 
         <h3 class="focus-heading reveal">重点能力</h3>
@@ -73,6 +89,7 @@ function renderFeatured(p: Project): string {
         <div class="spotlight-cta reveal">
           ${linkOrSoon(p.repo, '查看源码')}
           ${linkOrSoon(p.docs, '工作流文档')}
+          ${p.video ? `<a class="text-link" href="#demos">演示区</a>` : ''}
           <ul class="stack stack-inline">${p.stack.map((s) => `<li>${s}</li>`).join('')}</ul>
         </div>
       </div>
@@ -227,7 +244,7 @@ function render(): string {
       <section id="demos" class="section">
         <div class="section-head">
           <h2>演示录屏</h2>
-          <p>预留位；可先通过仓库文档了解完整能力。</p>
+          <p>代表作端到端实录，可在线播放。</p>
         </div>
         <div class="demo-grid">
           ${demos.map(renderDemo).join('')}
