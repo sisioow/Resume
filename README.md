@@ -7,10 +7,8 @@
 | 渠道 | 地址 | 说明 |
 |------|------|------|
 | GitHub Pages | https://sisioow.github.io/Resume/ | 海外 |
-| **Gitee Pages（国内）** | 配置后见下方 | **国内免翻墙推荐** |
-| 阿里云 OSS | 仅备份 | 默认域名会强制下载，不作入口 |
-
-国内镜像步骤：[docs/国内镜像说明.md](docs/国内镜像说明.md)
+| **国内可预览镜像** | [配置说明](docs/国内镜像说明.md) | **推荐 Cloudflare Pages**（Gitee Pages 已下线） |
+| 阿里云 OSS | 仅备份 | 默认域名会强制下载 HTML |
 
 ## 本地预览
 
@@ -20,15 +18,9 @@ npm install
 npm run dev
 ```
 
-## Gitee Pages 国内镜像
+## 国内镜像（Cloudflare Pages）
 
-1. Gitee 新建公开仓库 `Resume`
-2. 创建私人令牌（projects 权限）
-3. GitHub Secrets 添加 `GITEE_TOKEN` / `GITEE_OWNER` / `GITEE_REPO`
-4. 跑 Actions：**Deploy China mirror to Gitee Pages**
-5. Gitee → 服务 → Gitee Pages → 分支 `gh-pages` → 启动/更新
-
-详情见 [docs/国内镜像说明.md](docs/国内镜像说明.md)。
+Gitee Pages 已下线，请用 Cloudflare Pages，步骤见 [docs/国内镜像说明.md](docs/国内镜像说明.md)。
 
 ## GitHub Pages
 
@@ -37,15 +29,3 @@ npm run dev
 ## 后续改内容
 
 编辑 [`site/src/data.ts`](site/src/data.ts)。
-
-## 目录
-
-```
-Resume/
-├── .github/workflows/
-│   ├── deploy-pages.yml   # GitHub Pages
-│   ├── deploy-gitee.yml   # Gitee Pages 国内镜像
-│   └── deploy-oss.yml     # 阿里云 OSS 备份（可选）
-├── docs/国内镜像说明.md
-└── site/
-```
