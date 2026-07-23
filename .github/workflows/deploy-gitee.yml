@@ -17,15 +17,14 @@ jobs:
         id: check
         env:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-          GITEE_OWNER: ${{ secrets.GITEE_OWNER }}
           GITEE_REPO: ${{ secrets.GITEE_REPO }}
         run: |
-          if [ -z "$GITEE_TOKEN" ] || [ -z "$GITEE_OWNER" ] || [ -z "$GITEE_REPO" ]; then
+          if [ -z "$GITEE_TOKEN" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::未配置 GITEE_TOKEN / GITEE_OWNER / GITEE_REPO，跳过。见 docs/国内镜像说明.md"
+            echo "::notice::未配置 GITEE_TOKEN，跳过。见 docs/国内镜像说明.md"
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
-            echo "Will deploy to: https://gitee.com/${GITEE_OWNER}/${GITEE_REPO}"
+            echo "repo_name=${GITEE_REPO:-Resume}" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v4
@@ -45,7 +44,7 @@ jobs:
           npm install
           npm run build
 
-      - name: Ensure Gitee repo exists
+      - name: Resolve Gitee user and push gh-pages
         if: steps.check.outputs.configured == 'true'
         env:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
@@ -53,33 +52,52 @@ jobs:
           GITEE_REPO: ${{ secrets.GITEE_REPO }}
         run: |
           set -euo pipefail
-          CODE=$(curl -sS -o /tmp/gitee-repo.json -w "%{http_code}" \
-            "https://gitee.com/api/v5/repos/${GITEE_OWNER}/${GITEE_REPO}?access_token=${GITEE_TOKEN}")
-          echo "GET repo HTTP $CODE"
-          if [ "$CODE" = "200" ]; then
-            echo "Repo already exists."
-            exit 0
-          fi
-          echo "Repo missing, creating public repo ${GITEE_REPO}…"
-          CREATE=$(curl -sS -o /tmp/gitee-create.json -w "%{http_code}" \
-            -X POST "https://gitee.com/api/v5/user/repos" \
-            -H "Content-Type: application/json" \
-            -d "{\"access_token\":\"${GITEE_TOKEN}\",\"name\":\"${GITEE_REPO}\",\"description\":\"施宏威个人作品集 · Gitee Pages\",\"private\":false,\"auto_init\":false}")
-          echo "CREATE HTTP $CREATE"
-          cat /tmp/gitee-create.json
-          if [ "$CREATE" != "201" ] && [ "$CREATE" != "200" ]; then
-            echo "::error::无法创建 Gitee 仓库。请确认：1) GITEE_OWNER 是你的用户名 2) 令牌勾选了 projects 权限 3) 仓库名合法"
+
+          # 用令牌解析真实用户名，避免 OWNER 填成 GitHub 名
+          USER_JSON=$(curl -sS "https://gitee.com/api/v5/user?access_token=${GITEE_TOKEN}")
+          LOGIN=$(python3 -c "import json,sys; print(json.load(sys.stdin).get('login',''))" <<<"$USER_JSON")
+          if [ -z "$LOGIN" ]; then
+            echo "::error::令牌无效，无法读取 Gitee 用户。请重新创建私人令牌（勾选 projects）"
+            echo "$USER_JSON"
             exit 1
           fi
 
-      - name: Push dist to Gitee gh-pages
-        if: steps.check.outputs.configured == 'true'
-        env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-          GITEE_OWNER: ${{ secrets.GITEE_OWNER }}
-          GITEE_REPO: ${{ secrets.GITEE_REPO }}
-        run: |
-          set -euo pipefail
+          OWNER="${GITEE_OWNER:-$LOGIN}"
+          REPO="${GITEE_REPO:-Resume}"
+          if [ "$OWNER" != "$LOGIN" ]; then
+            echo "::warning::Secret GITEE_OWNER=${OWNER} 与令牌用户 ${LOGIN} 不一致，改用令牌用户 ${LOGIN}"
+            OWNER="$LOGIN"
+          fi
+
+          echo "Deploy target: https://gitee.com/${OWNER}/${REPO}"
+
+          CODE=$(curl -sS -o /tmp/gitee-repo.json -w "%{http_code}" \
+            "https://gitee.com/api/v5/repos/${OWNER}/${REPO}?access_token=${GITEE_TOKEN}")
+          echo "GET repo HTTP $CODE"
+
+          if [ "$CODE" != "200" ]; then
+            echo "Creating public repo ${REPO}…"
+            CREATE=$(curl -sS -o /tmp/gitee-create.json -w "%{http_code}" \
+              -X POST "https://gitee.com/api/v5/user/repos" \
+              -H "Content-Type: application/json" \
+              -d "{\"access_token\":\"${GITEE_TOKEN}\",\"name\":\"${REPO}\",\"description\":\"施宏威个人作品集 · Gitee Pages\",\"private\":false,\"auto_init\":false}")
+            echo "CREATE HTTP $CREATE"
+            cat /tmp/gitee-create.json
+            # 422 已存在：直接继续推送
+            if [ "$CREATE" != "201" ] && [ "$CREATE" != "200" ]; then
+              if ! grep -q '已存在' /tmp/gitee-create.json; then
+                echo "::error::无法准备 Gitee 仓库"
+                exit 1
+              fi
+              echo "Repo already exists, continue push."
+            fi
+          fi
+
+          # 尽量设为公开（免费 Pages 需要）
+          curl -sS -X PATCH "https://gitee.com/api/v5/repos/${OWNER}/${REPO}" \
+            -H "Content-Type: application/json" \
+            -d "{\"access_token\":\"${GITEE_TOKEN}\",\"private\":false}" >/tmp/gitee-patch.json || true
+
           cd site/dist
           rm -rf .git
           git init
@@ -88,8 +106,10 @@ jobs:
           git add -A
           git commit -m "deploy: gitee pages $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git branch -M gh-pages
-          # Gitee 私人令牌推荐：用户名 + 令牌
-          git remote add origin "https://${GITEE_OWNER}:${GITEE_TOKEN}@gitee.com/${GITEE_OWNER}/${GITEE_REPO}.git"
+          git remote add origin "https://${OWNER}:${GITEE_TOKEN}@gitee.com/${OWNER}/${REPO}.git"
           git push -f origin gh-pages
-          echo "Pushed to https://gitee.com/${GITEE_OWNER}/${GITEE_REPO} (branch gh-pages)"
-          echo "Enable Pages → https://${GITEE_OWNER}.gitee.io/${GITEE_REPO}/"
+
+          echo ""
+          echo "Push OK → https://gitee.com/${OWNER}/${REPO}"
+          echo "请到 Gitee：服务 → Gitee Pages → 分支 gh-pages → 启动/更新"
+          echo "预览地址：https://${OWNER}.gitee.io/${REPO}/"
