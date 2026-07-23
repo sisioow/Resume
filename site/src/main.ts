@@ -15,7 +15,7 @@ import {
 
 const statusLabel: Record<Project['status'], string> = {
   live: '在架',
-  wip: '打磨中',
+  wip: '进行中',
   archived: '已交付',
 }
 
@@ -26,26 +26,33 @@ function linkOrSoon(url: string | undefined, label: string): string {
   return `<span class="soon">${label}</span>`
 }
 
+function renderFocus(list: Project['focus']): string {
+  if (!list?.length) return ''
+  return `
+    <div class="focus-list reveal">
+      ${list
+        .map(
+          (f) => `
+        <article class="focus-item">
+          <h4>${f.title}</h4>
+          <p>${f.body}</p>
+        </article>
+      `,
+        )
+        .join('')}
+    </div>
+  `
+}
+
 function renderFeatured(p: Project): string {
   const impact =
     p.impact
       ?.map(
         (i) => `
       <div class="impact-cell">
-        <strong data-count="${i.value}">${i.value}</strong>
+        <strong>${i.value}</strong>
         <span>${i.label}</span>
       </div>`,
-      )
-      .join('') ?? ''
-
-  const boasts =
-    p.boasts
-      ?.map(
-        (b, idx) => `
-      <button type="button" class="boast-chip" data-boast="${idx}" aria-pressed="${idx === 0}">
-        <span class="boast-index">0${idx + 1}</span>
-        <span class="boast-text">${b}</span>
-      </button>`,
       )
       .join('') ?? ''
 
@@ -53,33 +60,19 @@ function renderFeatured(p: Project): string {
     <section id="spotlight" class="spotlight">
       <div class="spotlight-glow" aria-hidden="true"></div>
       <div class="spotlight-inner">
-        <p class="eyebrow">代表作 · 先看这个就够了</p>
-        <h2 class="spotlight-hook">${p.hook}</h2>
+        <p class="eyebrow">${p.tag}</p>
+        <h2 class="spotlight-title">${p.name}</h2>
+        <p class="spotlight-hook">${p.hook}</p>
         <p class="spotlight-desc">${p.description}</p>
 
         <div class="impact-row reveal">${impact}</div>
 
-        <div class="boast-board reveal" role="tablist" aria-label="核心卖点">
-          ${boasts}
-        </div>
-        <p class="boast-stage" id="boast-stage" aria-live="polite">${p.boasts?.[0] ?? ''}</p>
+        <h3 class="focus-heading reveal">重点能力</h3>
+        ${renderFocus(p.focus)}
 
-        <div class="stage-theater reveal" id="stage-theater" aria-hidden="true">
-          <div class="stage-rail">
-            <span class="stage-node is-on" data-stage="0">想清楚</span>
-            <span class="stage-line"></span>
-            <span class="stage-node" data-stage="1">长好看</span>
-            <span class="stage-line"></span>
-            <span class="stage-node" data-stage="2">写得动</span>
-            <span class="stage-line"></span>
-            <span class="stage-node" data-stage="3">交得出</span>
-          </div>
-          <p class="stage-caption" id="stage-caption">Agent 在替你做判断，而不是替你聊天。</p>
-        </div>
-
-        <div class="spotlight-cta">
-          ${linkOrSoon(p.repo, '打开源码')}
-          ${linkOrSoon(p.docs, '深挖文档')}
+        <div class="spotlight-cta reveal">
+          ${linkOrSoon(p.repo, '查看源码')}
+          ${linkOrSoon(p.docs, '工作流文档')}
           <ul class="stack stack-inline">${p.stack.map((s) => `<li>${s}</li>`).join('')}</ul>
         </div>
       </div>
@@ -89,15 +82,23 @@ function renderFeatured(p: Project): string {
 
 function renderProject(p: Project): string {
   if (p.featured) return ''
+  const focus =
+    p.focus
+      ?.map((f) => `<li><strong>${f.title}</strong> ${f.body}</li>`)
+      .join('') ?? ''
+
   return `
-    <a class="work-compact reveal" href="#spotlight" id="${p.id}">
-      <div>
+    <article class="work-item reveal" id="${p.id}">
+      <div class="work-meta">
         <span class="work-tag">${p.tag}</span>
-        <strong>${p.name}</strong>
-        <p>${p.hook}</p>
+        <span class="work-status">${statusLabel[p.status]}</span>
       </div>
-      <span class="work-status">${statusLabel[p.status]}</span>
-    </a>
+      <h3>${p.name}</h3>
+      <p class="work-hook">${p.hook}</p>
+      <p class="work-desc">${p.description}</p>
+      ${focus ? `<ul class="work-focus">${focus}</ul>` : ''}
+      <ul class="stack">${p.stack.map((s) => `<li>${s}</li>`).join('')}</ul>
+    </article>
   `
 }
 
@@ -116,10 +117,10 @@ function renderRepo(r: Repo): string {
 function renderDemo(d: Demo): string {
   const media = d.src
     ? `<video controls preload="metadata" poster="${d.poster ?? ''}" src="${d.src}"></video>`
-    : `<div class="demo-placeholder">演示录屏位 · 先看源码也够硬</div>`
+    : `<div class="demo-placeholder">演示录屏位 · 可先阅读仓库文档</div>`
 
   const external = d.external
-    ? `<a class="text-link" href="${d.external}" target="_blank" rel="noopener noreferrer">去仓库</a>`
+    ? `<a class="text-link" href="${d.external}" target="_blank" rel="noopener noreferrer">打开仓库</a>`
     : ''
 
   return `
@@ -139,7 +140,7 @@ function renderMagic(): string {
     <div class="magic" id="magic" aria-label="交互演示：产品名到工程">
       <div class="magic-bar">
         <span class="magic-dot"></span>
-        <span class="magic-label">Agent 交付机</span>
+        <span class="magic-label">Agent 交付演示</span>
       </div>
       <div class="magic-body">
         <p class="magic-prompt">
@@ -181,7 +182,7 @@ function render(): string {
       <a class="brand" href="#top">${site.name}</a>
       <nav class="nav">
         <a href="#spotlight">代表作</a>
-        <a href="#work">更多</a>
+        <a href="#work">作品</a>
         <a href="#about">关于</a>
         <a href="#contact">联系</a>
       </nav>
@@ -195,7 +196,7 @@ function render(): string {
           <p class="hero-lead">${site.lead}</p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#spotlight">看代表作</a>
-            <a class="btn btn-ghost" href="mailto:${site.email}">约我聊聊</a>
+            <a class="btn btn-ghost" href="mailto:${site.email}">联系我</a>
           </div>
         </div>
         ${renderMagic()}
@@ -205,18 +206,18 @@ function render(): string {
 
       <section id="work" class="section">
         <div class="section-head">
-          <h2>还有这些</h2>
-          <p>法院落地、渠道在架、游戏重写 —— 都能交。</p>
+          <h2>其他作品</h2>
+          <p>法律 AI 落地、多端商业化产品与游戏工程，补充完整履历画像。</p>
         </div>
-        <div class="work-compact-list">
+        <div class="work-list">
           ${projects.map(renderProject).join('')}
         </div>
       </section>
 
       <section id="repos" class="section section-alt">
         <div class="section-head">
-          <h2>仓库</h2>
-          <p>代码在，口说无凭。</p>
+          <h2>仓库源码</h2>
+          <p>公开仓库入口，方便直接验货。</p>
         </div>
         <div class="repo-grid">
           ${repos.map(renderRepo).join('')}
@@ -225,8 +226,8 @@ function render(): string {
 
       <section id="demos" class="section">
         <div class="section-head">
-          <h2>演示</h2>
-          <p>录屏位预留；现在点仓库也能验货。</p>
+          <h2>演示录屏</h2>
+          <p>预留位；可先通过仓库文档了解完整能力。</p>
         </div>
         <div class="demo-grid">
           ${demos.map(renderDemo).join('')}
@@ -265,8 +266,8 @@ function render(): string {
 
       <section id="contact" class="section contact">
         <div class="section-head">
-          <h2>下一步，直接聊</h2>
-          <p>${site.location} · 简历一键带走</p>
+          <h2>联系</h2>
+          <p>${site.location}</p>
         </div>
         <div class="contact-row reveal">
           <a class="btn btn-primary" href="mailto:${site.email}">${site.email}</a>
@@ -279,14 +280,13 @@ function render(): string {
 
     <footer class="footer">
       <span>© ${new Date().getFullYear()} ${site.name}</span>
-      <a href="#top">顶部</a>
+      <a href="#top">回到顶部</a>
     </footer>
   `
 }
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = render()
 
-/* —— 交互：滚动显现 —— */
 const reveals = document.querySelectorAll('.reveal')
 const io = new IntersectionObserver(
   (entries) => {
@@ -297,7 +297,7 @@ const io = new IntersectionObserver(
       }
     }
   },
-  { threshold: 0.14, rootMargin: '0px 0px -6% 0px' },
+  { threshold: 0.12, rootMargin: '0px 0px -6% 0px' },
 )
 reveals.forEach((el) => io.observe(el))
 
@@ -308,7 +308,6 @@ window.addEventListener(
   { passive: true },
 )
 
-/* —— 交互：指针光晕（桌面） —— */
 const glow = document.getElementById('pointer-glow')
 if (glow && window.matchMedia('(pointer:fine)').matches) {
   window.addEventListener(
@@ -320,7 +319,6 @@ if (glow && window.matchMedia('(pointer:fine)').matches) {
   )
 }
 
-/* —— 交互：Hero 魔法切换 —— */
 const magicName = document.getElementById('magic-name')
 const magicOut = document.getElementById('magic-out')
 const magicChips = document.getElementById('magic-chips')
@@ -344,60 +342,9 @@ function playMagic(i: number) {
 magicChips?.addEventListener('click', (e) => {
   const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.magic-chip')
   if (!t) return
-  const i = Number(t.dataset.i)
-  playMagic(i)
+  playMagic(Number(t.dataset.i))
   window.clearInterval(magicTimer)
   magicTimer = window.setInterval(() => playMagic((magicIndex + 1) % magicPrompts.length), 3200)
 })
 
 magicTimer = window.setInterval(() => playMagic((magicIndex + 1) % magicPrompts.length), 3200)
-
-/* —— 交互：卖点切换 + 舞台推进 —— */
-const featured = projects.find((p) => p.featured)!
-const stageCopy = [
-  'Agent 在替你做判断，而不是替你聊天。',
-  'Stitch 出屏，好看不是口头禅。',
-  '顶级 CLI 下场写代码，日志实时给你看。',
-  '测得过、推得上，才叫交付。',
-]
-
-const boastBoard = document.querySelector('.boast-board')
-const boastStage = document.getElementById('boast-stage')
-const stageCaption = document.getElementById('stage-caption')
-const stageNodes = document.querySelectorAll<HTMLElement>('.stage-node')
-
-function setBoast(i: number) {
-  const list = featured.boasts ?? []
-  boastBoard?.querySelectorAll('.boast-chip').forEach((el, idx) => {
-    el.setAttribute('aria-pressed', String(idx === i))
-  })
-  if (boastStage) boastStage.textContent = list[i] ?? ''
-  stageNodes.forEach((node) => {
-    const s = Number(node.dataset.stage)
-    node.classList.toggle('is-on', s <= i)
-  })
-  if (stageCaption) stageCaption.textContent = stageCopy[i] ?? stageCopy[0]
-}
-
-boastBoard?.addEventListener('click', (e) => {
-  const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.boast-chip')
-  if (!t) return
-  setBoast(Number(t.dataset.boast))
-})
-
-/* 舞台自动轻扫一遍，制造「眼前一亮」 */
-let stageAuto = 0
-const stageIo = new IntersectionObserver(
-  (entries) => {
-    if (!entries[0]?.isIntersecting) return
-    stageIo.disconnect()
-    stageAuto = window.setInterval(() => {
-      const next = (Number(document.querySelector('.boast-chip[aria-pressed="true"]')?.getAttribute('data-boast') ?? 0) + 1) % 3
-      setBoast(next)
-    }, 2800)
-    window.setTimeout(() => window.clearInterval(stageAuto), 9000)
-  },
-  { threshold: 0.35 },
-)
-const theater = document.getElementById('stage-theater')
-if (theater) stageIo.observe(theater)
