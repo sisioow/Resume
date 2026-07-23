@@ -22,9 +22,10 @@ jobs:
         run: |
           if [ -z "$GITEE_TOKEN" ] || [ -z "$GITEE_OWNER" ] || [ -z "$GITEE_REPO" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::未配置 GITEE_* Secrets，跳过 Gitee 部署。见 docs/国内镜像说明.md"
+            echo "::notice::未配置 GITEE_TOKEN / GITEE_OWNER / GITEE_REPO，跳过。见 docs/国内镜像说明.md"
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "Will deploy to: https://gitee.com/${GITEE_OWNER}/${GITEE_REPO}"
           fi
 
       - uses: actions/checkout@v4
@@ -44,6 +45,33 @@ jobs:
           npm install
           npm run build
 
+      - name: Ensure Gitee repo exists
+        if: steps.check.outputs.configured == 'true'
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+          GITEE_OWNER: ${{ secrets.GITEE_OWNER }}
+          GITEE_REPO: ${{ secrets.GITEE_REPO }}
+        run: |
+          set -euo pipefail
+          CODE=$(curl -sS -o /tmp/gitee-repo.json -w "%{http_code}" \
+            "https://gitee.com/api/v5/repos/${GITEE_OWNER}/${GITEE_REPO}?access_token=${GITEE_TOKEN}")
+          echo "GET repo HTTP $CODE"
+          if [ "$CODE" = "200" ]; then
+            echo "Repo already exists."
+            exit 0
+          fi
+          echo "Repo missing, creating public repo ${GITEE_REPO}…"
+          CREATE=$(curl -sS -o /tmp/gitee-create.json -w "%{http_code}" \
+            -X POST "https://gitee.com/api/v5/user/repos" \
+            -H "Content-Type: application/json" \
+            -d "{\"access_token\":\"${GITEE_TOKEN}\",\"name\":\"${GITEE_REPO}\",\"description\":\"施宏威个人作品集 · Gitee Pages\",\"private\":false,\"auto_init\":false}")
+          echo "CREATE HTTP $CREATE"
+          cat /tmp/gitee-create.json
+          if [ "$CREATE" != "201" ] && [ "$CREATE" != "200" ]; then
+            echo "::error::无法创建 Gitee 仓库。请确认：1) GITEE_OWNER 是你的用户名 2) 令牌勾选了 projects 权限 3) 仓库名合法"
+            exit 1
+          fi
+
       - name: Push dist to Gitee gh-pages
         if: steps.check.outputs.configured == 'true'
         env:
@@ -53,13 +81,15 @@ jobs:
         run: |
           set -euo pipefail
           cd site/dist
+          rm -rf .git
           git init
           git config user.name "github-actions"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "deploy: gitee pages $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git branch -M gh-pages
-          git remote add origin "https://oauth2:${GITEE_TOKEN}@gitee.com/${GITEE_OWNER}/${GITEE_REPO}.git"
+          # Gitee 私人令牌推荐：用户名 + 令牌
+          git remote add origin "https://${GITEE_OWNER}:${GITEE_TOKEN}@gitee.com/${GITEE_OWNER}/${GITEE_REPO}.git"
           git push -f origin gh-pages
-          echo "Pushed to gitee.com/${GITEE_OWNER}/${GITEE_REPO} (gh-pages)"
-          echo "Site (after enabling Pages): https://${GITEE_OWNER}.gitee.io/${GITEE_REPO}/"
+          echo "Pushed to https://gitee.com/${GITEE_OWNER}/${GITEE_REPO} (branch gh-pages)"
+          echo "Enable Pages → https://${GITEE_OWNER}.gitee.io/${GITEE_REPO}/"
