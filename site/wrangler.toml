@@ -1,7 +1,11 @@
-# Cloudflare Pages 构建配置（也可在控制台 Connect Git 时填写同样选项）
-# Root directory: site
-# Build command: npm run build
-# Build output directory: dist
+# Cloudflare Pages 构建配置
+# 控制台建议：
+#   Root directory: site
+#   Install command: npm install
+#   Build command: npm run build
+#   Build output directory: dist
+#
+# 注意：必须用 npm install（不要用默认 npm ci），否则 lock 偶发不同步会失败。
 
 name = "shihongwei-resume"
 compatibility_date = "2026-01-01"
