@@ -21,11 +21,8 @@ npm run build
 OSSUTIL="$(command -v ossutil || true)"
 if [[ -z "$OSSUTIL" ]]; then
   echo "未找到 ossutil，正在下载临时二进制…"
-  curl -fsSL -o /tmp/ossutil https://gosspublic.alicdn.com/ossutil/1.7.19/ossutil-v1.7.19-mac-arm64
-  # 若架构不匹配再试通用包名
-  if ! /tmp/ossutil --version >/dev/null 2>&1; then
-    curl -fsSL -o /tmp/ossutil https://gosspublic.alicdn.com/ossutil/1.7.19/ossutilmac64
-  fi
+  curl -fsSL -o /tmp/ossutil https://gosspublic.alicdn.com/ossutil/1.7.18/ossutilmac64 \
+    || curl -fsSL -o /tmp/ossutil https://gosspublic.alicdn.com/ossutil/1.7.18/ossutil64
   chmod +x /tmp/ossutil
   OSSUTIL=/tmp/ossutil
 fi
