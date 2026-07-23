@@ -778,17 +778,67 @@ button {
   color: var(--ink-soft);
 }
 
+.copy-email {
+  gap: 0.55rem;
+  border: none;
+  cursor: pointer;
+}
+
+.copy-hint {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.75;
+  border-left: 1px solid rgba(244, 255, 253, 0.35);
+  padding-left: 0.55rem;
+}
+
 .social {
   margin-top: 1.1rem;
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
-.social a {
+.social a,
+.social-copy {
   color: var(--accent-deep);
   font-weight: 650;
   text-decoration: none;
   border-bottom: 1px solid rgba(10, 110, 104, 0.35);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.social a:hover,
+.social-copy:hover {
+  border-bottom-color: var(--accent-deep);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 50;
+  transform: translateX(-50%) translateY(0.6rem);
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.4rem;
+  background: rgba(12, 26, 40, 0.92);
+  color: #f4fffd;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 10px 28px rgba(12, 26, 40, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.toast.is-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .footer {

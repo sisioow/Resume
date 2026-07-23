@@ -169,7 +169,7 @@ function render(): string {
   const featured = projects.find((p) => p.featured)!
   const social = [
     site.github && `<a href="${site.github}" target="_blank" rel="noopener noreferrer">GitHub</a>`,
-    `<a href="mailto:${site.email}">邮箱</a>`,
+    `<button type="button" class="social-copy" data-copy="${site.email}">邮箱</button>`,
   ]
     .filter(Boolean)
     .join('')
@@ -196,7 +196,7 @@ function render(): string {
           <p class="hero-lead">${site.lead}</p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#spotlight">看代表作</a>
-            <a class="btn btn-ghost" href="mailto:${site.email}">联系我</a>
+            <a class="btn btn-ghost" href="#contact">联系我</a>
           </div>
         </div>
         ${renderMagic()}
@@ -270,13 +270,24 @@ function render(): string {
           <p>${site.location}</p>
         </div>
         <div class="contact-row reveal">
-          <a class="btn btn-primary" href="mailto:${site.email}">${site.email}</a>
+          <button
+            type="button"
+            class="btn btn-primary copy-email"
+            data-copy="${site.email}"
+            aria-label="点击复制邮箱"
+            title="点击复制"
+          >
+            ${site.email}
+            <span class="copy-hint">点击复制</span>
+          </button>
           <a class="btn btn-ghost" href="${site.resumePdf}" target="_blank" rel="noopener noreferrer">下载简历</a>
           <span class="contact-phone">${site.phone}</span>
         </div>
         <div class="social">${social}</div>
       </section>
     </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
     <footer class="footer">
       <span>© ${new Date().getFullYear()} ${site.name}</span>
@@ -352,3 +363,51 @@ magicChips?.addEventListener('click', (e) => {
 })
 
 magicTimer = window.setInterval(() => playMagic((magicIndex + 1) % magicPrompts.length), 3200)
+
+/* —— 点击复制邮箱 + toast —— */
+const toastEl = document.getElementById('toast')
+let toastTimer = 0
+
+function showToast(message: string) {
+  if (!toastEl) return
+  toastEl.hidden = false
+  toastEl.textContent = message
+  toastEl.classList.add('is-show')
+  window.clearTimeout(toastTimer)
+  toastTimer = window.setTimeout(() => {
+    toastEl.classList.remove('is-show')
+    window.setTimeout(() => {
+      toastEl.hidden = true
+    }, 220)
+  }, 2000)
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    /* fallback below */
+  }
+  const ta = document.createElement('textarea')
+  ta.value = text
+  ta.setAttribute('readonly', '')
+  ta.style.position = 'fixed'
+  ta.style.left = '-9999px'
+  document.body.appendChild(ta)
+  ta.select()
+  const ok = document.execCommand('copy')
+  document.body.removeChild(ta)
+  return ok
+}
+
+document.addEventListener('click', async (e) => {
+  const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-copy]')
+  if (!btn) return
+  const text = btn.dataset.copy?.trim()
+  if (!text) return
+  const ok = await copyText(text)
+  showToast(ok ? '邮箱已复制' : '复制失败，请手动选择')
+})
