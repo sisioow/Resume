@@ -11,11 +11,11 @@ export const site = {
   github: 'https://github.com/sisioow',
   gitee: '',
   /**
-   * 国内可预览入口（不要填 OSS 默认域名，会被强制下载）
-   * 推荐填 Cloudflare Pages：https://xxx.pages.dev
+   * 国内可预览入口：Gitee Pages
+   * 例：https://你的用户名.gitee.io/Resume/
    */
   mirror: '',
-  /** OSS 仅作备份同步，默认域名无法在线预览 HTML */
+  /** OSS 仅备份，默认域名无法在线预览 */
   ossBackup: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html',
 
   resumePdf: './resume.pdf',
