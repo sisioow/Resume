@@ -11,10 +11,9 @@ export const site = {
   github: 'https://github.com/sisioow',
   gitee: '',
   /**
-   * 国内可预览入口：Gitee Pages
-   * 例：https://你的用户名.gitee.io/Resume/
+   * 国内可预览入口：Cloudflare Pages
    */
-  mirror: '',
+  mirror: 'https://resume-due.pages.dev/',
   /** OSS 仅备份，默认域名无法在线预览 */
   ossBackup: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html',
 

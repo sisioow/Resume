@@ -7,7 +7,7 @@
 | 渠道 | 地址 | 说明 |
 |------|------|------|
 | GitHub Pages | https://sisioow.github.io/Resume/ | 海外 |
-| **国内可预览镜像** | [配置说明](docs/国内镜像说明.md) | **推荐 Cloudflare Pages**（Gitee Pages 已下线） |
+| **国内镜像** | https://resume-due.pages.dev/ | Cloudflare Pages，免备案 |
 | 阿里云 OSS | 仅备份 | 默认域名会强制下载 HTML |
 
 ## 本地预览
