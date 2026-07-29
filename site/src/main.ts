@@ -78,7 +78,7 @@ function renderFeatured(p: Project): string {
           poster="./demos/workflow-uniapp-poster.jpg"
           src="${p.video}"
         ></video>
-        <p class="spotlight-video-cap">演示录屏 · 可全屏观看</p>
+        <p class="spotlight-video-cap">演示录屏</p>
       </div>`
     : ''
 
@@ -155,7 +155,7 @@ function renderRepo(r: Repo): string {
 function renderDemo(d: Demo): string {
   const media = d.src
     ? `<video controls preload="metadata" poster="${d.poster ?? ''}" src="${d.src}"></video>`
-    : `<div class="demo-placeholder">演示录屏位 · 可先阅读仓库文档</div>`
+    : `<div class="demo-placeholder">暂无录屏</div>`
 
   const external = d.external
     ? `<a class="text-link" href="${d.external}" ${d.external.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>${d.external.startsWith('http') ? '打开仓库' : '打开演示页'}</a>`
@@ -262,7 +262,6 @@ function render(): string {
       <section id="work" class="section">
         <div class="section-head">
           <h2>其他作品</h2>
-          <p>法律 AI 落地、多端商业化产品与游戏工程，补充完整履历画像。</p>
         </div>
         <div class="work-list">
           ${projects.map(renderProject).join('')}
@@ -272,7 +271,6 @@ function render(): string {
       <section id="repos" class="section section-alt">
         <div class="section-head">
           <h2>仓库源码</h2>
-          <p>公开仓库入口，方便直接验货。</p>
         </div>
         <div class="repo-grid">
           ${repos.map(renderRepo).join('')}
@@ -282,7 +280,6 @@ function render(): string {
       <section id="demos" class="section">
         <div class="section-head">
           <h2>演示录屏</h2>
-          <p>代表作端到端实录，可在线播放。</p>
         </div>
         <div class="demo-grid">
           ${demos.map(renderDemo).join('')}
@@ -292,7 +289,6 @@ function render(): string {
       <section id="experience" class="section section-alt">
         <div class="section-head">
           <h2>工作经历</h2>
-          <p>两段一线交付：Agent 自动化工作流与法律 AI 全栈落地。</p>
         </div>
         <div class="exp-list">
           ${experiences

@@ -160,7 +160,7 @@ export const projects: Project[] = [
     focus: [
       {
         title: '结果导向',
-        body: '输出不是聊天记录，而是可编译的 UniApp 工程：带功能清单 README、可 H5 预览、可推到 Git 分支。面试官打开仓库就能顺着文档跑起来。',
+        body: '输出不是聊天记录，而是可编译的 UniApp 工程：带功能清单 README、可 H5 预览、可推到 Git 分支。',
       },
       {
         title: '能力编排',
@@ -182,13 +182,9 @@ export const projects: Project[] = [
     name: 'CrewAI Mission Console',
     tag: '多智能体',
     status: 'live',
-    hook: 'Crews + Flows 协作演示：检索 → 成稿 → 质检，可视化委派与产物落地',
+    hook: '多智能体顺序协作：检索 → 成稿 → 质检，工具调用与报告产物可视化',
     description:
-      '基于 CrewAI 理念打造的录屏演示控制台。选择任务主题后 Kickoff，Researcher / Analyst / Critic 顺序协作，实时展示工具调用、事件流与 report.md 结构化产物，适合展示多智能体编排能力。',
-    focus: [
-      { title: '演示价值', body: '无需 API Key，本地打开即可录制完整协作链路。' },
-      { title: '能力映射', body: '对应 Sequential Process、工具调用与 Guardrail 质检叙事。' },
-    ],
+      '基于 CrewAI 的协作控制台。启动后研究员、分析师、质检官依次执行，实时输出工具调用日志、事件流与结构化 Markdown 报告。',
     demo: './demos/crewai/',
     video: './demos/crewai.mp4',
     stack: ['CrewAI', 'Multi-Agent', 'Python'],
@@ -198,13 +194,9 @@ export const projects: Project[] = [
     name: 'Browser-Use Pilot',
     tag: '浏览器 Agent',
     status: 'live',
-    hook: '自然语言驱动浏览器：点击、填表、抽取，Demo Mode 级操作舞台',
+    hook: '自然语言驱动浏览器：导航、点击、填表与结构化抽取',
     description:
-      'Browser-Use 风格的前端演示台。输入任务后观看 Agent 在模拟浏览器中导航、高亮元素、键入表单并输出结构化对比表，覆盖比价、求职填表、Release 情报三类场景，便于录屏上传作品集。',
-    focus: [
-      { title: '演示价值', body: '光标轨迹 + 动作 HUD + 结构化输出，录屏即产品感。' },
-      { title: '能力映射', body: '对应 navigate / click / type / extract 与 demo_mode 叙事。' },
-    ],
+      'Browser-Use 浏览器操作台。Agent 在页面中完成导航、元素高亮、键入与抽取，覆盖竞品比价、表单填写、版本情报三类任务。',
     demo: './demos/browser-use/',
     video: './demos/browser-use.mp4',
     stack: ['Browser-Use', 'CDP', 'Python'],
@@ -231,8 +223,8 @@ export const projects: Project[] = [
     description:
       '响应最高院要素式示范文本推广，做成结构化引导填写与智能转换。覆盖多类起诉状模板，支持预览修改与 PDF / Word 导出打印。',
     focus: [
-      { title: '个人职责', body: '协同产品与 UI，基于 Vue3 + Node.js 完成核心模板与双端共享能力。' },
-      { title: '业务价值', body: '让普通人按步骤填完，就能产出可用诉讼材料。' },
+      { title: '职责', body: '协同产品与 UI，基于 Vue3 + Node.js 完成核心模板与双端共享。' },
+      { title: '结果', body: '支持起诉状一键导出 PDF / Word 并打印。' },
     ],
     stack: ['Vue3', 'Node.js'],
     status: 'archived',
@@ -255,12 +247,12 @@ export const projects: Project[] = [
     id: 'duoduo-quiz',
     name: '多多答题',
     tag: '游戏',
-    hook: '答题激励类 Cocos 重写，验证 AI + 引擎提效',
+    hook: '答题激励类 Cocos 重写，AI + 引擎加速交付',
     description:
-      '将旧安卓答题返现项目用 Cocos Creator 重写。个人负责核心玩法、UI、接口与广告 SDK，并验证 AI IDE / CLI + MCP 操控引擎的快速交付能力。',
+      '将旧安卓答题返现项目用 Cocos Creator 重写。负责核心玩法、UI、接口与广告 SDK；通过 AI IDE / CLI + MCP 操控引擎完成节点与场景搭建。',
     focus: [
-      { title: '交付范围', body: '玩法逻辑、动画、广告接入全覆盖。' },
-      { title: '方法验证', body: 'MCP + Cocos 自动化建节点 / 场景，缩短重写周期。' },
+      { title: '范围', body: '玩法逻辑、动画、广告接入全覆盖。' },
+      { title: '提效', body: 'MCP + Cocos 自动化建节点 / 场景，缩短重写周期。' },
     ],
     stack: ['Cocos Creator', 'MCP'],
     status: 'wip',
@@ -299,22 +291,22 @@ export type Demo = {
 
 export const demos: Demo[] = [
   {
-    title: 'workflow_uniapp 工作流演示',
-    description: '代表作实录：从产品名到可交付 UniApp 工程的端到端过程。',
+    title: 'workflow_uniapp',
+    description: '从产品名到可交付 UniApp 工程。',
     src: './demos/workflow-uniapp.mp4',
     poster: './demos/workflow-uniapp-poster.jpg',
     external: 'https://github.com/sisioow/workflow_uniapp',
   },
   {
-    title: 'CrewAI 多智能体协作',
-    description: '研究员 → 分析师 → 质检官顺序协作，事件流与报告产物落地。',
+    title: 'CrewAI',
+    description: '研究员 → 分析师 → 质检官协作与报告产出。',
     src: './demos/crewai.mp4',
     poster: './demos/crewai-poster.jpg',
     external: './demos/crewai/',
   },
   {
-    title: 'Browser-Use 浏览器操作',
-    description: '自然语言驱动点击、高亮与结构化比价抽取。',
+    title: 'Browser-Use',
+    description: '浏览器导航、点击与结构化比价抽取。',
     src: './demos/browser-use.mp4',
     poster: './demos/browser-use-poster.jpg',
     external: './demos/browser-use/',
