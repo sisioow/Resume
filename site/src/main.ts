@@ -27,6 +27,15 @@ function linkOrSoon(url: string | undefined, label: string): string {
   return `<span class="soon">${label}</span>`
 }
 
+/** Cloudflare Pages 对 mp4 不支持 Range，拖进度条会复原；改走 GitHub Pages 资源 */
+function demoMediaUrl(path: string | undefined): string {
+  if (!path) return ''
+  if (/^https?:\/\//.test(path)) return path
+  const file = path.replace(/^\.\//, '').replace(/^demos\//, '')
+  return `https://sisioow.github.io/Resume/demos/${file}`
+}
+
+
 function renderSkillGroup(group: SkillGroup): string {
   return `
     <article class="skill-group reveal">
@@ -73,10 +82,10 @@ function renderFeatured(p: Project): string {
       <div class="spotlight-video reveal">
         <video
           controls
-          preload="metadata"
+          preload="auto"
           playsinline
-          poster="./demos/workflow-uniapp-poster.jpg"
-          src="${p.video}"
+          poster="${demoMediaUrl(p.video.replace(/\.mp4$/, '-poster.jpg').includes('workflow') ? './demos/workflow-uniapp-poster.jpg' : p.video.replace(/\.mp4$/, '-poster.jpg'))}"
+          src="${demoMediaUrl(p.video)}"
         ></video>
         <p class="spotlight-video-cap">演示录屏</p>
       </div>`
