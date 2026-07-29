@@ -90,15 +90,15 @@ export const skillGroups: SkillGroup[] = [
   {
     title: '专业技能',
     items: [
+      'llm+rag',
+      'herness',
+      'skill',
+      'mcp+tools',
       'Python',
       'Node.js',
       'HTML / CSS / JavaScript',
       'Vue',
-      'AI 工具应用',
-      'OpenClaw 本地化部署',
-      'Skills 蒸馏',
-      'Agent / MCP 编排',
-      'UniApp / Cocos',
+      'Java + Spring Boot',
     ],
   },
   {
