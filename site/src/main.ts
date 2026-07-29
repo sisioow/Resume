@@ -116,7 +116,11 @@ function renderProject(p: Project): string {
       ?.map((f) => `<li><strong>${f.title}</strong> ${f.body}</li>`)
       .join('') ?? ''
 
-  const links = [linkOrSoon(p.repo, '源码'), p.demo ? linkOrSoon(p.demo, '打开演示') : '']
+  const links = [
+    linkOrSoon(p.repo, '源码'),
+    p.demo ? linkOrSoon(p.demo, '打开演示') : '',
+    p.video ? `<a class="text-link" href="#demos">观看录屏</a>` : '',
+  ]
     .filter((x) => x && !x.includes('class="soon"'))
     .join('')
 
@@ -154,7 +158,7 @@ function renderDemo(d: Demo): string {
     : `<div class="demo-placeholder">演示录屏位 · 可先阅读仓库文档</div>`
 
   const external = d.external
-    ? `<a class="text-link" href="${d.external}" target="_blank" rel="noopener noreferrer">打开仓库</a>`
+    ? `<a class="text-link" href="${d.external}" ${d.external.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>${d.external.startsWith('http') ? '打开仓库' : '打开演示页'}</a>`
     : ''
 
   return `

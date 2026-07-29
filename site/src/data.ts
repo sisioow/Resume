@@ -305,4 +305,18 @@ export const demos: Demo[] = [
     poster: './demos/workflow-uniapp-poster.jpg',
     external: 'https://github.com/sisioow/workflow_uniapp',
   },
+  {
+    title: 'CrewAI 多智能体协作',
+    description: '研究员 → 分析师 → 质检官顺序协作，事件流与报告产物落地。',
+    src: './demos/crewai.mp4',
+    poster: './demos/crewai-poster.jpg',
+    external: './demos/crewai/',
+  },
+  {
+    title: 'Browser-Use 浏览器操作',
+    description: '自然语言驱动点击、高亮与结构化比价抽取。',
+    src: './demos/browser-use.mp4',
+    poster: './demos/browser-use-poster.jpg',
+    external: './demos/browser-use/',
+  },
 ]
