@@ -306,7 +306,6 @@ function render(): string {
       <section id="skills" class="section">
         <div class="section-head">
           <h2>技能</h2>
-          <p>专业能力、办公工具、兴趣方向与相关证书。</p>
         </div>
         <div class="skill-groups">
           ${skillGroups.map(renderSkillGroup).join('')}
