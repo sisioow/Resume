@@ -7,7 +7,7 @@ export const site = {
   lead: '专注 AI Agent 工作流与多端交付。能独立覆盖产品方案、UI 设计与代码落地，代表作是开源的本地 App 生成工作流。',
   location: '湖北 · 远程协作',
   email: '15587742070@163.com',
-  phone: '155-8774-2070',
+  phone: '15587742070',
   github: 'https://github.com/sisioow',
   gitee: '',
   /**

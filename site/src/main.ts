@@ -307,13 +307,22 @@ function render(): string {
             class="btn btn-primary copy-email"
             data-copy="${site.email}"
             aria-label="点击复制邮箱"
-            title="点击复制"
+            title="点击复制邮箱"
           >
             ${site.email}
-            <span class="copy-hint">点击复制</span>
+            <span class="copy-hint">复制邮箱</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost copy-phone"
+            data-copy="${site.phone}"
+            aria-label="点击复制电话"
+            title="点击复制电话"
+          >
+            ${site.phone}
+            <span class="copy-hint copy-hint-dark">复制电话</span>
           </button>
           <a class="btn btn-ghost" href="${site.resumePdf}" target="_blank" rel="noopener noreferrer">下载简历</a>
-          <span class="contact-phone">${site.phone}</span>
         </div>
         <div class="social">${social}</div>
       </section>
@@ -485,5 +494,6 @@ document.addEventListener('click', async (e) => {
   const text = btn.dataset.copy?.trim()
   if (!text) return
   const ok = await copyText(text)
-  showToast(ok ? '邮箱已复制' : '复制失败，请手动选择')
+  const isPhone = /^\d{11}$/.test(text) || text === site.phone
+  showToast(ok ? (isPhone ? '电话已复制' : '邮箱已复制') : '复制失败，请手动选择')
 })

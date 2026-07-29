@@ -840,12 +840,21 @@ button {
   cursor: pointer;
 }
 
+.copy-phone {
+  gap: 0.55rem;
+  cursor: pointer;
+}
+
 .copy-hint {
   font-size: 0.75rem;
   font-weight: 600;
   opacity: 0.75;
   border-left: 1px solid rgba(244, 255, 253, 0.35);
   padding-left: 0.55rem;
+}
+
+.copy-hint-dark {
+  border-left-color: rgba(12, 26, 40, 0.18);
 }
 
 .social {
