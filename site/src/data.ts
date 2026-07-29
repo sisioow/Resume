@@ -276,6 +276,18 @@ export const repos: Repo[] = [
     language: 'Python',
   },
   {
+    name: 'sisioow/crewAI',
+    description: '多智能体协作演示控制台',
+    url: 'https://github.com/sisioow/crewAI',
+    language: 'JavaScript',
+  },
+  {
+    name: 'sisioow/browser-use',
+    description: '浏览器 Agent 演示控制台',
+    url: 'https://github.com/sisioow/browser-use',
+    language: 'JavaScript',
+  },
+  {
     name: 'sisioow/Resume',
     description: '个人作品集站点源码',
     url: 'https://github.com/sisioow/Resume',
