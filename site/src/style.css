@@ -217,7 +217,7 @@ button {
 /* 魔法台：点产品名 → 出结果 */
 .magic {
   justify-self: end;
-  width: min(100%, 24rem);
+  width: min(100%, 26rem);
   background: rgba(12, 26, 40, 0.92);
   color: #e8f2f0;
   border-radius: 0.85rem;
@@ -259,18 +259,51 @@ button {
 }
 
 .magic-body {
-  padding: 1.25rem 1.15rem 1.15rem;
+  padding: 1.1rem 1.15rem 1.15rem;
+}
+
+.magic-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0.45rem;
+}
+
+.magic-tab {
+  border: none;
+  background: transparent;
+  color: rgba(232, 242, 240, 0.55);
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.magic-tab:hover {
+  color: rgba(232, 242, 240, 0.85);
+}
+
+.magic-tab.is-active {
+  background: rgba(126, 240, 226, 0.14);
+  color: #7ef0e2;
 }
 
 .magic-prompt {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
   font-weight: 650;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.45rem;
+  line-height: 1.35;
+  min-height: 2.6em;
 }
 
 .magic-prefix {
@@ -283,6 +316,7 @@ button {
 
 .magic-name {
   color: #7ef0e2;
+  word-break: break-word;
 }
 
 .magic-cursor {
@@ -295,7 +329,7 @@ button {
 }
 
 .magic-transform {
-  margin-top: 1rem;
+  margin-top: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -321,7 +355,7 @@ button {
 
 .magic-out {
   font-weight: 650;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   color: #ffd7a8;
 }
 
@@ -329,7 +363,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 1.15rem;
+  margin-top: 1.05rem;
 }
 
 .magic-chip {
@@ -338,7 +372,10 @@ button {
   color: rgba(232, 242, 240, 0.75);
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  text-align: left;
+  max-width: 100%;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 

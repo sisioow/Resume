@@ -20,12 +20,38 @@ export const site = {
   resumePdf: './resume.pdf',
 }
 
-/** Hero 交互演示 */
-export const magicPrompts = [
-  { name: '藏品库', out: 'UniApp 工程就绪' },
-  { name: '我爱打螺丝', out: '渠道可上架包' },
-  { name: '文书精灵', out: '法院场景可用' },
-  { name: '多多答题', out: 'Cocos 玩法跑通' },
+/** Hero 右侧：可切换 Agent 列表 / 其他项目 */
+export type ShowcaseItem = { name: string; out: string }
+
+export type ShowcaseTab = {
+  id: 'agents' | 'others'
+  label: string
+  prefix: string
+  items: ShowcaseItem[]
+}
+
+export const showcaseTabs: ShowcaseTab[] = [
+  {
+    id: 'agents',
+    label: 'Agent 列表',
+    prefix: 'Agent',
+    items: [
+      { name: 'python+herness架构agent', out: '端到端 Agent 链路就绪' },
+      { name: 'n8n工作流', out: '自动化交付跑通' },
+      { name: 'jenkins自动打包脚本', out: '多端一键打包' },
+      { name: '文书精灵', out: '法院场景可用' },
+    ],
+  },
+  {
+    id: 'others',
+    label: '其他项目',
+    prefix: '项目',
+    items: [
+      { name: '多多答题cocos', out: 'Cocos 玩法跑通' },
+      { name: 'android项目（已上架）', out: '多渠道稳定在架' },
+      { name: '要素式诉讼文书辅助填写系统', out: '诉状一键导出' },
+    ],
+  },
 ]
 
 export const about = {

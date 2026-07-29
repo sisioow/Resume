@@ -3,13 +3,14 @@ import {
   about,
   demos,
   experiences,
-  magicPrompts,
   projects,
   repos,
+  showcaseTabs,
   site,
   type Demo,
   type Project,
   type Repo,
+  type ShowcaseTab,
 } from './data'
 
 const statusLabel: Record<Project['status'], string> = {
@@ -152,24 +153,40 @@ function renderDemo(d: Demo): string {
 }
 
 function renderMagic(): string {
+  const first = showcaseTabs[0]
   return `
-    <div class="magic" id="magic" aria-label="交互演示：产品名到工程">
+    <div class="magic" id="magic" aria-label="Agent 与项目切换展示">
       <div class="magic-bar">
         <span class="magic-dot"></span>
-        <span class="magic-label">Agent 交付演示</span>
+        <span class="magic-label">Agent 交付</span>
       </div>
       <div class="magic-body">
+        <div class="magic-tabs" id="magic-tabs" role="tablist">
+          ${showcaseTabs
+            .map(
+              (tab, i) => `
+            <button
+              type="button"
+              class="magic-tab${i === 0 ? ' is-active' : ''}"
+              role="tab"
+              aria-selected="${i === 0}"
+              data-tab="${tab.id}"
+            >${tab.label}</button>
+          `,
+            )
+            .join('')}
+        </div>
         <p class="magic-prompt">
-          <span class="magic-prefix">产品名</span>
-          <span class="magic-name" id="magic-name">${magicPrompts[0].name}</span>
+          <span class="magic-prefix" id="magic-prefix">${first.prefix}</span>
+          <span class="magic-name" id="magic-name">${first.items[0].name}</span>
           <span class="magic-cursor" aria-hidden="true"></span>
         </p>
         <div class="magic-transform">
           <span class="magic-arrow" aria-hidden="true"></span>
-          <span class="magic-out" id="magic-out">${magicPrompts[0].out}</span>
+          <span class="magic-out" id="magic-out">${first.items[0].out}</span>
         </div>
         <div class="magic-chips" id="magic-chips">
-          ${magicPrompts
+          ${first.items
             .map(
               (m, i) =>
                 `<button type="button" class="magic-chip${i === 0 ? ' is-active' : ''}" data-i="${i}">${m.name}</button>`,
@@ -351,33 +368,77 @@ if (glow && window.matchMedia('(pointer:fine)').matches) {
 
 const magicName = document.getElementById('magic-name')
 const magicOut = document.getElementById('magic-out')
+const magicPrefix = document.getElementById('magic-prefix')
 const magicChips = document.getElementById('magic-chips')
+const magicTabs = document.getElementById('magic-tabs')
 const magicRoot = document.getElementById('magic')
+let magicTabId: ShowcaseTab['id'] = 'agents'
 let magicIndex = 0
 let magicTimer = 0
 
+function currentTab(): ShowcaseTab {
+  return showcaseTabs.find((t) => t.id === magicTabId) ?? showcaseTabs[0]
+}
+
+function renderChips(tab: ShowcaseTab, active = 0) {
+  if (!magicChips) return
+  magicChips.innerHTML = tab.items
+    .map(
+      (m, i) =>
+        `<button type="button" class="magic-chip${i === active ? ' is-active' : ''}" data-i="${i}">${m.name}</button>`,
+    )
+    .join('')
+}
+
 function playMagic(i: number) {
-  magicIndex = i
-  const item = magicPrompts[i]
+  const tab = currentTab()
+  magicIndex = ((i % tab.items.length) + tab.items.length) % tab.items.length
+  const item = tab.items[magicIndex]
   magicChips?.querySelectorAll('.magic-chip').forEach((el, idx) => {
-    el.classList.toggle('is-active', idx === i)
+    el.classList.toggle('is-active', idx === magicIndex)
   })
   magicRoot?.classList.remove('is-firing')
   void magicRoot?.offsetWidth
   magicRoot?.classList.add('is-firing')
+  if (magicPrefix) magicPrefix.textContent = tab.prefix
   if (magicName) magicName.textContent = item.name
   if (magicOut) magicOut.textContent = item.out
 }
+
+function startMagicTimer() {
+  window.clearInterval(magicTimer)
+  magicTimer = window.setInterval(() => {
+    playMagic(magicIndex + 1)
+  }, 3200)
+}
+
+function switchMagicTab(tabId: ShowcaseTab['id']) {
+  magicTabId = tabId
+  magicTabs?.querySelectorAll('.magic-tab').forEach((el) => {
+    const active = el.getAttribute('data-tab') === tabId
+    el.classList.toggle('is-active', active)
+    el.setAttribute('aria-selected', String(active))
+  })
+  const tab = currentTab()
+  renderChips(tab, 0)
+  playMagic(0)
+  startMagicTimer()
+}
+
+magicTabs?.addEventListener('click', (e) => {
+  const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.magic-tab')
+  if (!t?.dataset.tab) return
+  switchMagicTab(t.dataset.tab as ShowcaseTab['id'])
+})
 
 magicChips?.addEventListener('click', (e) => {
   const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.magic-chip')
   if (!t) return
   playMagic(Number(t.dataset.i))
-  window.clearInterval(magicTimer)
-  magicTimer = window.setInterval(() => playMagic((magicIndex + 1) % magicPrompts.length), 3200)
+  startMagicTimer()
 })
 
-magicTimer = window.setInterval(() => playMagic((magicIndex + 1) % magicPrompts.length), 3200)
+startMagicTimer()
 
 /* —— 点击复制邮箱 + toast —— */
 const toastEl = document.getElementById('toast')
