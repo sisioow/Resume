@@ -84,7 +84,7 @@ function renderFeatured(p: Project): string {
           controls
           preload="auto"
           playsinline
-          poster="${demoMediaUrl(p.video.replace(/\.mp4$/, '-poster.jpg').includes('workflow') ? './demos/workflow-uniapp-poster.jpg' : p.video.replace(/\.mp4$/, '-poster.jpg'))}"
+          poster="${demoMediaUrl('./demos/workflow-uniapp-poster.jpg')}"
           src="${demoMediaUrl(p.video)}"
         ></video>
         <p class="spotlight-video-cap">演示录屏</p>
@@ -163,7 +163,7 @@ function renderRepo(r: Repo): string {
 
 function renderDemo(d: Demo): string {
   const media = d.src
-    ? `<video controls preload="metadata" poster="${d.poster ?? ''}" src="${d.src}"></video>`
+    ? `<video controls preload="auto" playsinline poster="${demoMediaUrl(d.poster)}" src="${demoMediaUrl(d.src)}"></video>`
     : `<div class="demo-placeholder">暂无录屏</div>`
 
   const external = d.external
