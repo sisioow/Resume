@@ -1,16 +1,17 @@
 import './style.css'
 import {
-  about,
   demos,
   experiences,
   projects,
   repos,
   showcaseTabs,
   site,
+  skillGroups,
   type Demo,
   type Project,
   type Repo,
   type ShowcaseTab,
+  type SkillGroup,
 } from './data'
 
 const statusLabel: Record<Project['status'], string> = {
@@ -24,6 +25,17 @@ function linkOrSoon(url: string | undefined, label: string): string {
     return `<a class="text-link" href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`
   }
   return `<span class="soon">${label}</span>`
+}
+
+function renderSkillGroup(group: SkillGroup): string {
+  return `
+    <article class="skill-group reveal">
+      <h3>${group.title}</h3>
+      <div class="skills">
+        ${group.items.map((s) => `<span>${s}</span>`).join('')}
+      </div>
+    </article>
+  `
 }
 
 function renderFocus(list: Project['focus']): string {
@@ -216,7 +228,8 @@ function render(): string {
       <nav class="nav">
         <a href="#spotlight">代表作</a>
         <a href="#work">作品</a>
-        <a href="#about">关于</a>
+        <a href="#experience">工作经历</a>
+        <a href="#skills">技能</a>
         <a href="#contact">联系</a>
       </nav>
     </header>
@@ -267,16 +280,10 @@ function render(): string {
         </div>
       </section>
 
-      <section id="about" class="section section-alt">
+      <section id="experience" class="section section-alt">
         <div class="section-head">
-          <h2>关于</h2>
-          <p>${about.summary}</p>
-        </div>
-        <ul class="highlights">
-          ${about.highlights.map((h) => `<li class="reveal">${h}</li>`).join('')}
-        </ul>
-        <div class="skills reveal">
-          ${about.skills.map((s) => `<span>${s}</span>`).join('')}
+          <h2>工作经历</h2>
+          <p>两段一线交付：Agent 自动化工作流与法律 AI 全栈落地。</p>
         </div>
         <div class="exp-list">
           ${experiences
@@ -293,6 +300,16 @@ function render(): string {
           `,
             )
             .join('')}
+        </div>
+      </section>
+
+      <section id="skills" class="section">
+        <div class="section-head">
+          <h2>技能</h2>
+          <p>专业能力、办公工具、兴趣方向与相关证书。</p>
+        </div>
+        <div class="skill-groups">
+          ${skillGroups.map(renderSkillGroup).join('')}
         </div>
       </section>
 

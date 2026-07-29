@@ -54,33 +54,18 @@ export const showcaseTabs: ShowcaseTab[] = [
   },
 ]
 
-export const about = {
-  summary:
-    '现任 Agent 开发工程师。擅长把 LLM、MCP、代码生成 CLI 编排成可落地的交付链路，也有法院场景与应用商店多端上架经验。',
-  highlights: [
-    '代表作 workflow_uniapp：本地 Agent 从需求到 UniApp 工程闭环',
-    '可独立承担产品方案、UI 与多端开发，交付效率显著提升',
-    '法律 AI 落地法院；多款 IAA / 工具类产品稳定在架',
-  ],
-  skills: [
-    'Agent 编排',
-    'Claude / Cursor / Codex',
-    'Stitch MCP',
-    'UniApp / Vue',
-    'Python / FastAPI',
-    'Cocos',
-    '多端上架',
-  ],
-}
-
 export const experiences = [
   {
     company: '北京臻盛网络有限公司',
     role: 'Agent 开发工程师',
     period: '2026.01 — 至今',
     points: [
-      '搭建端到端 Agent 交付能力：方案、设计、代码生成与验收测试',
-      '落地 workflow_uniapp，集成 Claude / Cursor / Codex 与 Stitch MCP',
+      '工作流设计与搭建：基于 n8n 构建端到端自动化开发工作流，覆盖产品方案 → UI 设计 → 代码生成 → 验收测试与打包，交付周期缩短约 90%',
+      'AI 代码生成集成：深度集成 Cursor CLI 与 Claude Code，实现需求文档到 UniApp 项目代码自动生成，质量达到主流渠道 A 面上架标准',
+      '自动化打包部署：搭建 CI/CD 流水线，支持 UniApp 多端（H5、小程序、App）一键打包与分发',
+      '前端工程开发：负责 Agent 平台可视化工作流编辑器，支持拖拽节点编排与实时调试',
+      'Cocos MCP + IDE/CLI：调研验证 AI 操控 Cocos Creator 创建节点、场景、预置体与脚本',
+      'Skills + Google Stitch + Trae/Cursor/Claude：一句话产品名快速生成完整 H5 项目',
     ],
   },
   {
@@ -88,9 +73,45 @@ export const experiences = [
     role: 'AI 全栈开发工程师',
     period: '2025.02 — 2025.08',
     points: [
-      '文书精灵核心段落智能生成，落地基层法院一线使用',
-      '要素式诉状系统：引导填写到 PDF / Word 导出',
+      '诉讼文书辅助填写系统：完成 11 类要素式起诉状前端与多方式填写、预览、HTML 转 Word/PDF 及扫码打印',
+      '文书精灵：Prompt 设计、大模型服务部署与应用层集成，基于 Jinja2 开发动态文书生成组件',
+      '独立实现判决书「当事人信息」「审理经过」等段落智能生成，落地鄂州梁子湖区法院、武汉东湖高新区法院',
     ],
+  },
+]
+
+/** 技能：专业 / 办公 / 兴趣 / 证书（对齐简历） */
+export type SkillGroup = {
+  title: string
+  items: string[]
+}
+
+export const skillGroups: SkillGroup[] = [
+  {
+    title: '专业技能',
+    items: [
+      'Python',
+      'Node.js',
+      'HTML / CSS / JavaScript',
+      'Vue',
+      'AI 工具应用',
+      'OpenClaw 本地化部署',
+      'Skills 蒸馏',
+      'Agent / MCP 编排',
+      'UniApp / Cocos',
+    ],
+  },
+  {
+    title: '办公技能',
+    items: ['Word', 'Excel', 'PowerPoint', 'Markdown', '飞书 / 钉钉'],
+  },
+  {
+    title: '兴趣爱好',
+    items: ['人工智能技术', 'AI-Agent 应用开发', '玩游戏', '健身', '旅游'],
+  },
+  {
+    title: '相关证书',
+    items: ['CET-6', 'CET-4'],
   },
 ]
 
