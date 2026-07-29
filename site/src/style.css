@@ -138,8 +138,15 @@ button {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: end;
+  align-items: center;
   padding: clamp(4.5rem, 12vh, 7rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
+}
+
+.hero-copy {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero-brand {
@@ -153,8 +160,8 @@ button {
 }
 
 .hero h1 {
-  margin: 0;
-  max-width: 16ch;
+  margin: 0 auto;
+  max-width: 18ch;
   font-family: var(--font-display);
   font-size: clamp(1.45rem, 3.4vw, 2.2rem);
   font-weight: 650;
@@ -164,7 +171,7 @@ button {
 }
 
 .hero-lead {
-  margin: 1rem 0 0;
+  margin: 1rem auto 0;
   max-width: 34rem;
   color: var(--ink-soft);
   font-size: clamp(0.98rem, 1.8vw, 1.1rem);
@@ -174,6 +181,7 @@ button {
 .hero-cta {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.75rem;
   margin-top: 1.6rem;
   animation: rise 0.85s ease 0.24s both;
