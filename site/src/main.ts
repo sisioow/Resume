@@ -116,6 +116,10 @@ function renderProject(p: Project): string {
       ?.map((f) => `<li><strong>${f.title}</strong> ${f.body}</li>`)
       .join('') ?? ''
 
+  const links = [linkOrSoon(p.repo, '源码'), p.demo ? linkOrSoon(p.demo, '打开演示') : '']
+    .filter((x) => x && !x.includes('class="soon"'))
+    .join('')
+
   return `
     <article class="work-item reveal" id="${p.id}">
       <div class="work-meta">
@@ -126,6 +130,7 @@ function renderProject(p: Project): string {
       <p class="work-hook">${p.hook}</p>
       <p class="work-desc">${p.description}</p>
       ${focus ? `<ul class="work-focus">${focus}</ul>` : ''}
+      ${links ? `<div class="work-links">${links}</div>` : ''}
       <ul class="stack">${p.stack.map((s) => `<li>${s}</li>`).join('')}</ul>
     </article>
   `

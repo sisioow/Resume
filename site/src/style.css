@@ -672,6 +672,13 @@ button {
   font-weight: 650;
 }
 
+.work-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.1rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
 .repo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
@@ -744,33 +751,36 @@ button {
   font-size: 0.92rem;
 }
 
-.highlights {
-  margin: 0 auto 1.25rem;
-  padding: 0;
-  list-style: none;
+.skill-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
 }
 
-.highlights li {
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--line);
-  color: var(--ink-soft);
-}
-
-.highlights li:last-child {
-  border-bottom: 1px solid var(--line);
+.skill-group h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--accent-deep);
 }
 
 .skills {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 0.85rem;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
 .skills span {
   font-size: 0.88rem;
   color: var(--ink-soft);
   border-bottom: 1px solid rgba(10, 110, 104, 0.3);
+}
+
+@media (max-width: 720px) {
+  .skill-groups {
+    grid-template-columns: 1fr;
+  }
 }
 
 .exp-item {

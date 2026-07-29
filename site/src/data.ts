@@ -47,6 +47,8 @@ export const showcaseTabs: ShowcaseTab[] = [
     label: '其他项目',
     prefix: '项目',
     items: [
+      { name: 'CrewAI 多智能体编排', out: '协作交付可视化' },
+      { name: 'Browser-Use 浏览器 Agent', out: '网页操作自动化' },
       { name: '多多答题cocos', out: 'Cocos 玩法跑通' },
       { name: 'android项目（已上架）', out: '多渠道稳定在架' },
       { name: '要素式诉讼文书辅助填写系统', out: '诉状一键导出' },
@@ -174,6 +176,36 @@ export const projects: Project[] = [
     demo: '',
     video: './demos/workflow-uniapp.mp4',
     stack: ['Python', 'FastAPI', 'UniApp', 'Stitch MCP', 'Claude', 'Cursor', 'Codex'],
+  },
+  {
+    id: 'crewai',
+    name: 'CrewAI Mission Console',
+    tag: '多智能体',
+    status: 'live',
+    hook: 'Crews + Flows 协作演示：检索 → 成稿 → 质检，可视化委派与产物落地',
+    description:
+      '基于 CrewAI 理念打造的录屏演示控制台。选择任务主题后 Kickoff，Researcher / Analyst / Critic 顺序协作，实时展示工具调用、事件流与 report.md 结构化产物，适合展示多智能体编排能力。',
+    focus: [
+      { title: '演示价值', body: '无需 API Key，本地打开即可录制完整协作链路。' },
+      { title: '能力映射', body: '对应 Sequential Process、工具调用与 Guardrail 质检叙事。' },
+    ],
+    demo: './demos/crewai/',
+    stack: ['CrewAI', 'Multi-Agent', 'Python'],
+  },
+  {
+    id: 'browser-use',
+    name: 'Browser-Use Pilot',
+    tag: '浏览器 Agent',
+    status: 'live',
+    hook: '自然语言驱动浏览器：点击、填表、抽取，Demo Mode 级操作舞台',
+    description:
+      'Browser-Use 风格的前端演示台。输入任务后观看 Agent 在模拟浏览器中导航、高亮元素、键入表单并输出结构化对比表，覆盖比价、求职填表、Release 情报三类场景，便于录屏上传作品集。',
+    focus: [
+      { title: '演示价值', body: '光标轨迹 + 动作 HUD + 结构化输出，录屏即产品感。' },
+      { title: '能力映射', body: '对应 navigate / click / type / extract 与 demo_mode 叙事。' },
+    ],
+    demo: './demos/browser-use/',
+    stack: ['Browser-Use', 'CDP', 'Python'],
   },
   {
     id: 'wenshu-jingling',

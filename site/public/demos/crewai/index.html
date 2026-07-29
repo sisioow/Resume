@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CrewAI · Mission Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="fx-grid" aria-hidden="true"></div>
+  <div class="fx-orb fx-orb-a" aria-hidden="true"></div>
+  <div class="fx-orb fx-orb-b" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <div>
+        <strong>CrewAI</strong>
+        <em>Mission Console</em>
+      </div>
+    </div>
+    <div class="top-meta">
+      <span class="pill live"><i></i> Sequential Process</span>
+      <span class="pill">v1.15 · Demo</span>
+    </div>
+  </header>
+
+  <main class="stage">
+    <aside class="panel brief">
+      <p class="eyebrow">Mission Brief</p>
+      <h1>多智能体协作<br /><span>一键编排交付</span></h1>
+      <p class="lede">选择场景后 Kickoff：Researcher 检索 → Analyst 成稿 → Critic 质检，实时观察委派轨迹与产物落地。</p>
+
+      <label class="field">
+        <span>任务主题</span>
+        <input id="topic" type="text" value="2026 Agent 框架趋势与落地路径" />
+      </label>
+
+      <div class="scenario-row" id="scenarios">
+        <button type="button" class="scenario active" data-topic="2026 Agent 框架趋势与落地路径">趋势研报</button>
+        <button type="button" class="scenario" data-topic="竞品落地页转化漏斗拆解">竞品拆解</button>
+        <button type="button" class="scenario" data-topic="法律文书 Agent 产品方案">产品方案</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="kickoff">Kickoff Crew</button>
+        <button type="button" class="btn ghost" id="replay">自动演示</button>
+      </div>
+
+      <div class="stats">
+        <div><b id="stat-agents">3</b><span>Agents</span></div>
+        <div><b id="stat-tasks">0</b><span>Tasks Done</span></div>
+        <div><b id="stat-ms">—</b><span>Elapsed</span></div>
+      </div>
+    </aside>
+
+    <section class="panel constellation" aria-label="Agent constellation">
+      <svg class="links" id="links" viewBox="0 0 640 420" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="agents" id="agents"></div>
+      <div class="pulse-ring" id="pulse" hidden></div>
+    </section>
+
+    <section class="panel stream">
+      <div class="stream-head">
+        <h2>Event Stream</h2>
+        <span id="phase">待机</span>
+      </div>
+      <ol class="log" id="log"></ol>
+      <article class="report" id="report" hidden>
+        <header>
+          <h3>report.md</h3>
+          <span>结构化产物</span>
+        </header>
+        <pre id="report-body"></pre>
+      </article>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Demo UI · 用于录屏展示 Crews + Flows 协作感</span>
+    <span>本地打开即可 · 无需 API Key</span>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

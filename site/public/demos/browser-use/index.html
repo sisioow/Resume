@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Browser-Use · Pilot Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="logo">BU</span>
+      <div>
+        <strong>Browser-Use</strong>
+        <em>Pilot Console · Demo Mode</em>
+      </div>
+    </div>
+    <div class="status-line">
+      <span class="chip"><i class="dot"></i> CDP Connected</span>
+      <span class="chip">Chromium</span>
+      <span class="chip" id="step-chip">Step 0/8</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="control">
+      <p class="kicker">Natural Language → Real Browser Actions</p>
+      <h1>让 Agent <em>像人一样</em><br />操作网页</h1>
+      <p class="desc">输入任务后观看：感知 DOM → 决策 → 点击/输入/滚动 → 结构化抽取。专为录屏演示设计。</p>
+
+      <label class="task-box">
+        <span>任务</span>
+        <textarea id="task" rows="3">打开竞品定价页，对比三档套餐，提取月费与功能差异，输出结构化表格</textarea>
+      </label>
+
+      <div class="presets" id="presets">
+        <button type="button" data-task="打开竞品定价页，对比三档套餐，提取月费与功能差异，输出结构化表格">比价抽取</button>
+        <button type="button" data-task="在招聘页填写申请表：姓名、邮箱、作品集链接，并上传简历">表单填写</button>
+        <button type="button" data-task="搜索 Browser-Use 最新 Release，记录版本号与亮点">情报检索</button>
+      </div>
+
+      <div class="btns">
+        <button type="button" class="btn run" id="run">▶ 启动 Agent</button>
+        <button type="button" class="btn stop" id="stop" disabled>停止</button>
+      </div>
+
+      <div class="think">
+        <div class="think-head">
+          <h2>Agent Thought</h2>
+          <span id="model">bu-2-0 · demo</span>
+        </div>
+        <p id="thought">等待任务…</p>
+      </div>
+
+      <ul class="action-log" id="actions"></ul>
+    </section>
+
+    <section class="viewport-wrap">
+      <div class="browser">
+        <div class="chrome">
+          <div class="traffic"><span></span><span></span><span></span></div>
+          <div class="omnibox">
+            <span class="lock">🔒</span>
+            <span id="url">about:blank</span>
+          </div>
+          <div class="chrome-right">demo_mode</div>
+        </div>
+        <div class="page" id="page">
+          <div class="splash" id="splash">
+            <strong>Browser Stage</strong>
+            <p>点击「启动 Agent」开始自动演示</p>
+          </div>
+        </div>
+        <div class="cursor" id="cursor" hidden></div>
+        <div class="hud" id="hud" hidden>
+          <div class="hud-title">Live Actions</div>
+          <div id="hud-body">—</div>
+        </div>
+      </div>
+
+      <aside class="extract" id="extract" hidden>
+        <h2>Structured Output</h2>
+        <table>
+          <thead>
+            <tr><th>套餐</th><th>月费</th><th>亮点</th></tr>
+          </thead>
+          <tbody id="extract-body"></tbody>
+        </table>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Browser-Use Demo UI · 本地静态演示，无需 API</span>
+    <span>建议全屏录制 · 1920×1080</span>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
