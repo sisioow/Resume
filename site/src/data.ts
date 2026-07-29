@@ -187,6 +187,7 @@ export const projects: Project[] = [
       '基于 CrewAI 的协作控制台。启动后研究员、分析师、质检官依次执行，实时输出工具调用日志、事件流与结构化 Markdown 报告。',
     demo: './demos/crewai/',
     video: './demos/crewai.mp4',
+    repo: 'https://github.com/sisioow/crewAI',
     stack: ['CrewAI', 'Multi-Agent', 'Python'],
   },
   {
@@ -199,6 +200,7 @@ export const projects: Project[] = [
       'Browser-Use 浏览器操作台。Agent 在页面中完成导航、元素高亮、键入与抽取，覆盖竞品比价、表单填写、版本情报三类任务。',
     demo: './demos/browser-use/',
     video: './demos/browser-use.mp4',
+    repo: 'https://github.com/sisioow/browser-use',
     stack: ['Browser-Use', 'CDP', 'Python'],
   },
   {
