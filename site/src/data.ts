@@ -190,6 +190,7 @@ export const projects: Project[] = [
       { title: '能力映射', body: '对应 Sequential Process、工具调用与 Guardrail 质检叙事。' },
     ],
     demo: './demos/crewai/',
+    video: './demos/crewai.mp4',
     stack: ['CrewAI', 'Multi-Agent', 'Python'],
   },
   {
@@ -205,6 +206,7 @@ export const projects: Project[] = [
       { title: '能力映射', body: '对应 navigate / click / type / extract 与 demo_mode 叙事。' },
     ],
     demo: './demos/browser-use/',
+    video: './demos/browser-use.mp4',
     stack: ['Browser-Use', 'CDP', 'Python'],
   },
   {
