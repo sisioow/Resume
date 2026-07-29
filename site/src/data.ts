@@ -103,11 +103,11 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     title: '办公技能',
-    items: ['Word', 'Excel', 'PowerPoint', 'Markdown', '飞书 / 钉钉'],
+    items: ['Word', 'Excel', 'PowerPoint', 'Markdown', '飞书 / 钉钉', '剪映'],
   },
   {
     title: '兴趣爱好',
-    items: ['人工智能技术', 'AI-Agent 应用开发', '玩游戏', '健身', '旅游'],
+    items: ['工作流', '新 AI 技术或工具', '健身', '摄影'],
   },
   {
     title: '相关证书',
