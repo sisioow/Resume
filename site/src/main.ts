@@ -164,7 +164,9 @@ function renderRepo(r: Repo): string {
 function renderDemo(d: Demo): string {
   const media = d.src
     ? `<video controls preload="auto" playsinline poster="${demoMediaUrl(d.poster)}" src="${demoMediaUrl(d.src)}"></video>`
-    : `<div class="demo-placeholder">暂无录屏</div>`
+    : d.external && !d.external.startsWith('http')
+      ? `<a class="demo-launch" href="${d.external}"><strong>可交互演示</strong><span>点击进入网页点测</span></a>`
+      : `<div class="demo-placeholder">暂无录屏</div>`
 
   const external = d.external
     ? `<a class="text-link" href="${d.external}" ${d.external.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>${d.external.startsWith('http') ? '打开仓库' : '打开演示页'}</a>`

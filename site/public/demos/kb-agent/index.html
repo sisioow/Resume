@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KB Agent · 企业知识库客服</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="mark">KB</span>
+      <div>
+        <strong>Knowledge Agent</strong>
+        <em>企业知识库客服 · RAG 可交互演示</em>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="pill live"><i></i> Retrieve → Rerank → Answer · Cite</span>
+      <span class="pill">本地演示 · 无需 API</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel left">
+      <p class="eyebrow">生产级 RAG 能力展台</p>
+      <h1>带引用回答<br /><span>看得见检索质量</span></h1>
+      <p class="lede">选择知识库并提出问题：系统会展示切分命中、相关性分数、重排结果，再生成可溯源答复。</p>
+
+      <div class="kb-switch" id="kb-switch" role="tablist">
+        <button type="button" class="is-active" data-kb="product">产品手册</button>
+        <button type="button" data-kb="support">售后政策</button>
+      </div>
+
+      <label class="field">
+        <span>用户问题</span>
+        <textarea id="question" rows="3">Agent 工作流失败重试次数上限是多少？如何配置？</textarea>
+      </label>
+
+      <div class="presets" id="presets"></div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="ask">提问</button>
+        <button type="button" class="btn ghost" id="clear">清空</button>
+      </div>
+
+      <div class="metrics">
+        <div><b id="m-hit">—</b><span>Hit@3</span></div>
+        <div><b id="m-faith">—</b><span>忠实度</span></div>
+        <div><b id="m-lat">—</b><span>延迟</span></div>
+      </div>
+    </aside>
+
+    <section class="panel mid">
+      <div class="sec-head">
+        <h2>检索命中</h2>
+        <span id="retrieve-state">待机</span>
+      </div>
+      <ul class="chunks" id="chunks"></ul>
+    </section>
+
+    <section class="panel right">
+      <div class="sec-head">
+        <h2>客服回复</h2>
+        <span class="badge" id="ans-badge">未回答</span>
+      </div>
+      <article class="answer" id="answer">
+        <p class="placeholder">提问后，这里会给出带 [引用] 的答复，并列出依据片段。</p>
+      </article>
+      <div class="cites" id="cites"></div>
+      <ol class="trace" id="trace"></ol>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>KB Agent 演示 · 覆盖 RAG / Rerank / Citation / Eval 指标</span>
+    <a href="../../">← 返回作品集</a>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

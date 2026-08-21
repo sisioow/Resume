@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deep Research · 深度调研 Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="mark">DR</span>
+      <div>
+        <strong>Deep Research</strong>
+        <em>多智能体深度调研台 · 可交互演示</em>
+      </div>
+    </div>
+    <div class="meta">
+      <span class="pill live"><i></i> Planner → Search → Critic → Writer</span>
+      <span class="pill">无需 API · 本地演示</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel control">
+      <p class="eyebrow">垂类能力 · 竞品 / 技术选型 / 市场情报</p>
+      <h1>一句话课题<br /><span>自动交叉验证成稿</span></h1>
+      <p class="lede">模拟生产级 Deep Research：任务拆解、并行检索、冲突裁决、引用成稿。点击即可跑通全链路。</p>
+
+      <label class="field">
+        <span>调研课题</span>
+        <textarea id="topic" rows="3">对比 LangGraph / CrewAI / AutoGen 在生产 Agent 中的适用边界与选型建议</textarea>
+      </label>
+
+      <div class="presets" id="presets">
+        <button type="button" data-id="framework">框架选型</button>
+        <button type="button" data-id="pricing">竞品定价</button>
+        <button type="button" data-id="mcp">MCP 生态</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="run">开始深度调研</button>
+        <button type="button" class="btn ghost" id="reset">重置</button>
+      </div>
+
+      <div class="metrics">
+        <div><b id="m-sources">0</b><span>信源</span></div>
+        <div><b id="m-conflicts">0</b><span>冲突裁决</span></div>
+        <div><b id="m-conf">—</b><span>综合置信</span></div>
+        <div><b id="m-ms">—</b><span>耗时</span></div>
+      </div>
+    </aside>
+
+    <section class="panel pipeline">
+      <div class="pipe-head">
+        <h2>执行管线</h2>
+        <span id="phase">待机</span>
+      </div>
+      <ol class="steps" id="steps">
+        <li data-step="plan"><span>01</span><div><strong>Planner</strong><em>拆解子问题与检索策略</em></div></li>
+        <li data-step="search"><span>02</span><div><strong>Search Crew</strong><em>并行抓取多源证据</em></div></li>
+        <li data-step="critic"><span>03</span><div><strong>Critic</strong><em>交叉验证 / 冲突裁决</em></div></li>
+        <li data-step="write"><span>04</span><div><strong>Writer</strong><em>带引用结构化成稿</em></div></li>
+      </ol>
+
+      <div class="sources-head">
+        <h3>证据池</h3>
+        <span id="source-count">0 条</span>
+      </div>
+      <ul class="sources" id="sources"></ul>
+    </section>
+
+    <section class="panel output">
+      <div class="out-head">
+        <h2>调研报告</h2>
+        <span class="badge" id="out-badge">未生成</span>
+      </div>
+      <article class="report" id="report">
+        <p class="placeholder">启动后，这里会实时写出带引用编号的研究报告，并标注置信度与风险点。</p>
+      </article>
+      <ol class="log" id="log"></ol>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Deep Research 演示 · 体现 Multi-Agent / Planning / Citation / Eval 竞争力</span>
+    <a href="../../">← 返回作品集</a>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

@@ -36,10 +36,10 @@ export const showcaseTabs: ShowcaseTab[] = [
     label: 'Agent 列表',
     prefix: 'Agent',
     items: [
-      { name: 'python+herness架构agent', out: '端到端 Agent 链路就绪' },
+      { name: 'Deep Research 深度调研', out: '带引用研究报告' },
+      { name: '企业知识库客服 Agent', out: 'RAG 可溯源答复' },
+      { name: 'python+harness架构agent', out: '端到端 Agent 链路就绪' },
       { name: 'n8n工作流', out: '自动化交付跑通' },
-      { name: 'jenkins自动打包脚本', out: '多端一键打包' },
-      { name: '文书精灵', out: '法院场景可用' },
     ],
   },
   {
@@ -178,6 +178,36 @@ export const projects: Project[] = [
     stack: ['Python', 'FastAPI', 'UniApp', 'Stitch MCP', 'Claude', 'Cursor', 'Codex'],
   },
   {
+    id: 'deep-research',
+    name: 'Deep Research 深度调研台',
+    tag: '垂类 · 可演示',
+    status: 'live',
+    hook: '多智能体深度调研：拆解 → 并行检索 → 冲突裁决 → 带引用成稿',
+    description:
+      '面向技术选型与竞品情报的 Deep Research Agent 演示。模拟 Planner / Search Crew / Critic / Writer 全链路，实时展示证据池、冲突裁决次数与综合置信度，输出可溯源研究报告。用于体现 Multi-Agent、Planning、Citation 与轻量 Eval 能力。',
+    focus: [
+      { title: '竞争力点', body: '不是聊天问答，而是可交叉验证的调研闭环；报告带引用编号与风险标注。' },
+      { title: '可交互', body: '网页内一键跑通，无需 API Key；支持框架选型 / 竞品定价 / MCP 生态三类课题。' },
+    ],
+    demo: './demos/deep-research/',
+    stack: ['Multi-Agent', 'Planning', 'Citation', 'Eval'],
+  },
+  {
+    id: 'kb-agent',
+    name: '企业知识库客服 Agent',
+    tag: '垂类 · RAG',
+    status: 'live',
+    hook: '生产向 RAG：混合检索 → Rerank → 带引用回答，并展示 Hit@3 / 忠实度',
+    description:
+      '企业知识库客服演示台。切换「产品手册 / 售后政策」知识库后提问，可视化展示切片命中分、重排 Top3，并生成带引用答复与简易评测指标。补齐 Agent 岗高频要求的 RAG、溯源与可观测表达。',
+    focus: [
+      { title: '可交互', body: '本地静态演示即可点测；预设高频售后/产品问题一键切换。' },
+      { title: '工程表达', body: '把检索质量与回答忠实度做成可见指标，而不是只给一段答案。' },
+    ],
+    demo: './demos/kb-agent/',
+    stack: ['RAG', 'Rerank', 'Citation', 'Eval'],
+  },
+  {
     id: 'crewai',
     name: 'CrewAI Mission Console',
     tag: '多智能体',
@@ -304,6 +334,16 @@ export type Demo = {
 }
 
 export const demos: Demo[] = [
+  {
+    title: 'Deep Research',
+    description: '多智能体深度调研：证据池 + 冲突裁决 + 带引用成稿。',
+    external: './demos/deep-research/',
+  },
+  {
+    title: '知识库客服 Agent',
+    description: 'RAG 检索命中、Rerank 与带引用回答，可网页点测。',
+    external: './demos/kb-agent/',
+  },
   {
     title: 'workflow_uniapp',
     description: '从产品名到可交付 UniApp 工程。',
