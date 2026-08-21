@@ -13,7 +13,7 @@ export const site = {
   /**
    * 国内可预览入口：Cloudflare Pages
    */
-  mirror: 'https://resume-due.pages.dev/',
+  mirror: 'https://resume-shihongwei.pages.dev/',
   /** OSS 仅备份，默认域名无法在线预览 */
   ossBackup: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html',
 

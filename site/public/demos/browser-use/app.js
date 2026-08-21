@@ -191,7 +191,7 @@ async function runFormFlow() {
   const fields = [
     ['f-name', '施宏威', 2, '输入 · 姓名'],
     ['f-email', '15587742070@163.com', 3, '输入 · 邮箱'],
-    ['f-site', 'https://resume-due.pages.dev/', 4, '输入 · 作品集'],
+    ['f-site', 'https://resume-shihongwei.pages.dev/', 4, '输入 · 作品集'],
   ]
   for (const [id, value, step, label] of fields) {
     if (abort) return

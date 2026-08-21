@@ -7,6 +7,6 @@
 #
 # 注意：必须用 npm install（不要用默认 npm ci），否则 lock 偶发不同步会失败。
 
-name = "shihongwei-resume"
+name = "resume-shihongwei"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "dist"
