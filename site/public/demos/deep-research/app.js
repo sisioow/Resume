@@ -114,11 +114,11 @@ function log(msg) {
 }
 
 function setPhase(text) {
-  $('#phase').textContent = text
+  $('#phase').textContent = String(text).toUpperCase()
 }
 
 function setStep(id, state) {
-  document.querySelectorAll('.steps li').forEach((li) => {
+  document.querySelectorAll('#steps li').forEach((li) => {
     const sid = li.getAttribute('data-step')
     li.classList.remove('active', 'done')
     if (sid === id && state === 'active') li.classList.add('active')
@@ -147,7 +147,7 @@ function renderSources(list, count = 0) {
     </li>`,
     )
     .join('')
-  $('#source-count').textContent = `${Math.min(count, list.length)} 条`
+  $('#source-count').textContent = `${Math.min(count, list.length)} SRC`
   $('#m-sources').textContent = String(Math.min(count, list.length))
 }
 
@@ -163,7 +163,7 @@ function renderReport(data) {
     ${body}
     <div class="risk">风险标注：${data.risk}</div>
   `
-  $('#out-badge').textContent = `置信 ${data.conf}`
+  $('#out-badge').textContent = `CONF ${data.conf}`
   $('#out-badge').classList.add('ready')
   $('#m-conf').textContent = data.conf
 }
@@ -176,7 +176,7 @@ async function runResearch() {
   logEl.innerHTML = ''
   sourcesEl.innerHTML = ''
   reportEl.innerHTML = '<p class="placeholder">管线执行中…</p>'
-  $('#out-badge').textContent = '生成中'
+  $('#out-badge').textContent = 'GENERATING'
   $('#out-badge').classList.remove('ready')
   $('#m-conflicts').textContent = '0'
   $('#m-conf').textContent = '—'
@@ -231,14 +231,14 @@ async function runResearch() {
 function reset() {
   if (running) return
   setPhase('待机')
-  document.querySelectorAll('.steps li').forEach((li) => li.classList.remove('active', 'done'))
+  document.querySelectorAll('#steps li').forEach((li) => li.classList.remove('active', 'done'))
   sourcesEl.innerHTML = ''
   logEl.innerHTML = ''
   reportEl.innerHTML =
-    '<p class="placeholder">启动后，这里会实时写出带引用编号的研究报告，并标注置信度与风险点。</p>'
-  $('#out-badge').textContent = '未生成'
+    '<p class="placeholder">执行后，情报稿将在此纸面展开，引用编号与风险栏同步出现。</p>'
+  $('#out-badge').textContent = 'DRAFT PENDING'
   $('#out-badge').classList.remove('ready')
-  $('#source-count').textContent = '0 条'
+  $('#source-count').textContent = '0 SRC'
   $('#m-sources').textContent = '0'
   $('#m-conflicts').textContent = '0'
   $('#m-conf').textContent = '—'

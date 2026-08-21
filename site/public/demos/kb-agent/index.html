@@ -6,81 +6,88 @@
   <title>KB Agent · 企业知识库客服</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="atmosphere" aria-hidden="true"></div>
-
-  <header class="top">
-    <div class="brand">
-      <span class="mark">KB</span>
-      <div>
-        <strong>Knowledge Agent</strong>
-        <em>企业知识库客服 · RAG 可交互演示</em>
-      </div>
-    </div>
-    <div class="meta">
-      <span class="pill live"><i></i> Retrieve → Rerank → Answer · Cite</span>
-      <span class="pill">本地演示 · 无需 API</span>
-    </div>
-  </header>
-
-  <main class="layout">
-    <aside class="panel left">
-      <p class="eyebrow">生产级 RAG 能力展台</p>
-      <h1>带引用回答<br /><span>看得见检索质量</span></h1>
-      <p class="lede">选择知识库并提出问题：系统会展示切分命中、相关性分数、重排结果，再生成可溯源答复。</p>
-
-      <div class="kb-switch" id="kb-switch" role="tablist">
-        <button type="button" class="is-active" data-kb="product">产品手册</button>
-        <button type="button" data-kb="support">售后政策</button>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="home" href="../../">← 作品集</a>
+      <div class="side-brand">
+        <span class="logo">Kb</span>
+        <div>
+          <strong>Support Desk</strong>
+          <em>RAG 客服工作台</em>
+        </div>
       </div>
 
-      <label class="field">
-        <span>用户问题</span>
-        <textarea id="question" rows="3">Agent 工作流失败重试次数上限是多少？如何配置？</textarea>
-      </label>
+      <p class="side-label">知识库</p>
+      <div class="kb-list" id="kb-switch" role="tablist">
+        <button type="button" class="is-active" data-kb="product">
+          <span class="dot"></span>
+          <div>
+            <strong>产品手册</strong>
+            <em>runtime / MCP / HITL</em>
+          </div>
+        </button>
+        <button type="button" data-kb="support">
+          <span class="dot alt"></span>
+          <div>
+            <strong>售后政策</strong>
+            <em>SLA / 上传 / 私有化</em>
+          </div>
+        </button>
+      </div>
 
+      <p class="side-label">快捷问题</p>
       <div class="presets" id="presets"></div>
 
-      <div class="actions">
-        <button type="button" class="btn primary" id="ask">提问</button>
-        <button type="button" class="btn ghost" id="clear">清空</button>
-      </div>
-
-      <div class="metrics">
+      <div class="side-metrics">
         <div><b id="m-hit">—</b><span>Hit@3</span></div>
         <div><b id="m-faith">—</b><span>忠实度</span></div>
         <div><b id="m-lat">—</b><span>延迟</span></div>
       </div>
     </aside>
 
-    <section class="panel mid">
-      <div class="sec-head">
-        <h2>检索命中</h2>
-        <span id="retrieve-state">待机</span>
+    <section class="chat">
+      <header class="chat-top">
+        <div>
+          <strong id="kb-title">产品手册客服</strong>
+          <span class="online"><i></i> Agent online</span>
+        </div>
+        <div class="chat-actions">
+          <span id="retrieve-state">待机</span>
+          <button type="button" class="ghost" id="clear">清空会话</button>
+        </div>
+      </header>
+
+      <div class="thread" id="thread">
+        <div class="bubble bot welcome">
+          <p>你好，我是企业知识库客服 Agent。选左侧知识库后提问，我会先检索再回答，并附上引用。</p>
+        </div>
       </div>
-      <ul class="chunks" id="chunks"></ul>
+
+      <form class="composer" id="composer">
+        <textarea id="question" rows="2" placeholder="输入问题，例如：重试次数上限是多少？"></textarea>
+        <button type="submit" class="send" id="ask">发送</button>
+      </form>
     </section>
 
-    <section class="panel right">
-      <div class="sec-head">
-        <h2>客服回复</h2>
-        <span class="badge" id="ans-badge">未回答</span>
+    <aside class="inspector">
+      <div class="insp-head">
+        <h2>检索检视器</h2>
+        <span class="badge" id="ans-badge">空闲</span>
       </div>
-      <article class="answer" id="answer">
-        <p class="placeholder">提问后，这里会给出带 [引用] 的答复，并列出依据片段。</p>
-      </article>
+      <ul class="chunks" id="chunks">
+        <li class="empty">提问后这里显示命中切片与分数</li>
+      </ul>
       <div class="cites" id="cites"></div>
       <ol class="trace" id="trace"></ol>
-    </section>
-  </main>
+    </aside>
+  </div>
 
-  <footer class="foot">
-    <span>KB Agent 演示 · 覆盖 RAG / Rerank / Citation / Eval 指标</span>
-    <a href="../../">← 返回作品集</a>
-  </footer>
+  <!-- hidden answer mount kept for JS compatibility -->
+  <div id="answer" hidden></div>
 
   <script src="./app.js"></script>
 </body>

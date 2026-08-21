@@ -1,6 +1,6 @@
 const corpora = {
   product: {
-    label: '产品手册',
+    label: '产品手册客服',
     presets: [
       'Agent 工作流失败重试次数上限是多少？如何配置？',
       'MCP 工具调用超时默认值是多少？',
@@ -60,7 +60,7 @@ const corpora = {
     },
   },
   support: {
-    label: '售后政策',
+    label: '售后政策客服',
     presets: [
       '企业版 SLA 响应时效是多久？',
       '知识库文档上传格式有哪些限制？',
@@ -129,6 +129,8 @@ const citesEl = $('#cites')
 const traceEl = $('#trace')
 const askBtn = $('#ask')
 const presetsEl = $('#presets')
+const threadEl = $('#thread')
+const composer = $('#composer')
 
 let kb = 'product'
 let presetIndex = 0
@@ -144,12 +146,22 @@ function trace(msg) {
   traceEl.prepend(li)
 }
 
+function addBubble(role, html) {
+  const div = document.createElement('div')
+  div.className = `bubble ${role}`
+  div.innerHTML = `<p>${html}</p>`
+  threadEl.appendChild(div)
+  threadEl.scrollTop = threadEl.scrollHeight
+  return div
+}
+
 function renderPresets() {
   const list = corpora[kb].presets
   presetsEl.innerHTML = list
     .map((q, i) => `<button type="button" data-i="${i}">${q}</button>`)
     .join('')
   questionEl.value = list[presetIndex] || list[0]
+  $('#kb-title').textContent = corpora[kb].label
 }
 
 function rankChunks(query) {
@@ -165,22 +177,28 @@ function rankChunks(query) {
     .sort((a, b) => b.score - a.score)
 }
 
-async function ask() {
+async function ask(e) {
+  if (e) e.preventDefault()
   if (running) return
+  const q = questionEl.value.trim()
+  if (!q) return
+
   running = true
   askBtn.disabled = true
-  const q = questionEl.value.trim()
   chunksEl.innerHTML = ''
   citesEl.innerHTML = ''
   traceEl.innerHTML = ''
-  answerEl.innerHTML = '<p class="placeholder">检索与生成中…</p>'
-  $('#ans-badge').textContent = '处理中'
+  answerEl.innerHTML = ''
+  $('#ans-badge').textContent = '检索中'
   $('#ans-badge').classList.remove('ok')
   $('#retrieve-state').textContent = 'Embed → Retrieve'
   $('#m-hit').textContent = '—'
   $('#m-faith').textContent = '—'
   $('#m-lat').textContent = '—'
   const t0 = Date.now()
+
+  addBubble('user', q.replace(/</g, '&lt;'))
+  const typing = addBubble('bot', '正在检索知识库…')
 
   trace(`query: ${q.slice(0, 42)}${q.length > 42 ? '…' : ''}`)
   await sleep(350)
@@ -189,7 +207,7 @@ async function ask() {
   $('#retrieve-state').textContent = 'Hybrid Recall'
   const ranked = rankChunks(q)
   for (let i = 0; i < ranked.length; i++) {
-    await sleep(260)
+    await sleep(240)
     const c = ranked[i]
     const li = document.createElement('li')
     if (i < 3) li.classList.add('top')
@@ -205,7 +223,7 @@ async function ask() {
     trace(`hit ${c.id} score=${c.score.toFixed(2)}`)
   }
 
-  await sleep(320)
+  await sleep(280)
   $('#retrieve-state').textContent = 'Generate + Cite'
   trace('grounded generation')
 
@@ -213,6 +231,7 @@ async function ask() {
   const ansKey = matchedPreset >= 0 ? matchedPreset : 0
   const ans = corpora[kb].answers[ansKey]
 
+  typing.innerHTML = `<p>${ans.html}</p>`
   answerEl.innerHTML = `<p>${ans.html}</p>`
   citesEl.innerHTML = ans.cites
     .map((id) => {
@@ -221,30 +240,35 @@ async function ask() {
     })
     .join('')
 
-  $('#ans-badge').textContent = '已引用回答'
+  $('#ans-badge').textContent = '已引用'
   $('#ans-badge').classList.add('ok')
   $('#m-hit').textContent = ans.hit
   $('#m-faith').textContent = ans.faith
   $('#m-lat').textContent = `${((Date.now() - t0) / 1000).toFixed(1)}s`
   $('#retrieve-state').textContent = '完成'
   trace('done')
+  threadEl.scrollTop = threadEl.scrollHeight
 
   running = false
   askBtn.disabled = false
+  questionEl.value = ''
 }
 
 function clearAll() {
   if (running) return
-  chunksEl.innerHTML = ''
+  threadEl.innerHTML =
+    '<div class="bubble bot welcome"><p>你好，我是企业知识库客服 Agent。选左侧知识库后提问，我会先检索再回答，并附上引用。</p></div>'
+  chunksEl.innerHTML = '<li class="empty">提问后这里显示命中切片与分数</li>'
   citesEl.innerHTML = ''
   traceEl.innerHTML = ''
-  answerEl.innerHTML = '<p class="placeholder">提问后，这里会给出带 [引用] 的答复，并列出依据片段。</p>'
-  $('#ans-badge').textContent = '未回答'
+  answerEl.innerHTML = ''
+  $('#ans-badge').textContent = '空闲'
   $('#ans-badge').classList.remove('ok')
   $('#retrieve-state').textContent = '待机'
   $('#m-hit').textContent = '—'
   $('#m-faith').textContent = '—'
   $('#m-lat').textContent = '—'
+  renderPresets()
 }
 
 $('#kb-switch').addEventListener('click', (e) => {
@@ -264,6 +288,12 @@ presetsEl.addEventListener('click', (e) => {
   questionEl.value = corpora[kb].presets[presetIndex]
 })
 
-askBtn.addEventListener('click', ask)
+composer.addEventListener('submit', ask)
 $('#clear').addEventListener('click', clearAll)
+questionEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault()
+    ask()
+  }
+})
 renderPresets()
