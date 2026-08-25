@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KB Agent · 企业知识库客服</title>
+  <title>RAG知识库智能检索</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -14,24 +14,31 @@
     <aside class="sidebar">
       <a class="home" href="../../">← 作品集</a>
       <div class="side-brand">
-        <span class="logo">Kb</span>
+        <span class="logo">RAG</span>
         <div>
-          <strong>Support Desk</strong>
-          <em>RAG · deepseek-v4-pro</em>
+          <strong>RAG知识库智能检索</strong>
+          <em>Hybrid · Rerank · deepseek-v4-pro</em>
         </div>
       </div>
 
       <p class="side-label">知识库</p>
       <div class="kb-list" id="kb-switch" role="tablist">
-        <button type="button" class="is-active" data-kb="product">
+        <button type="button" class="is-active" data-kb="resume">
           <span class="dot"></span>
+          <div>
+            <strong>我的简历</strong>
+            <em>默认 · 履历 / 项目 / 技能</em>
+          </div>
+        </button>
+        <button type="button" data-kb="product">
+          <span class="dot alt"></span>
           <div>
             <strong>产品手册</strong>
             <em>runtime / MCP / HITL</em>
           </div>
         </button>
         <button type="button" data-kb="support">
-          <span class="dot alt"></span>
+          <span class="dot"></span>
           <div>
             <strong>售后政策</strong>
             <em>SLA / 上传 / 私有化</em>
@@ -52,7 +59,7 @@
     <section class="chat">
       <header class="chat-top">
         <div>
-          <strong id="kb-title">产品手册客服</strong>
+          <strong id="kb-title">我的简历</strong>
           <span class="online"><i></i> Agent online</span>
         </div>
         <div class="chat-actions">
@@ -63,12 +70,12 @@
 
       <div class="thread" id="thread">
         <div class="bubble bot welcome">
-          <p>你好，我是企业知识库客服 Agent。选左侧知识库后提问，我会先检索再回答，并附上引用。</p>
+          <p>你好，这里是<strong>RAG知识库智能检索</strong>。默认知识库为「我的简历」——先混合检索切片并重排，再由 deepseek-v4-pro 生成带引用答复。也可切换示例产品 / 售后知识库。</p>
         </div>
       </div>
 
       <form class="composer" id="composer">
-        <textarea id="question" rows="2" placeholder="输入问题，例如：重试次数上限是多少？"></textarea>
+        <textarea id="question" rows="2" placeholder="例如：目前在做什么？代表作是什么？如何联系？"></textarea>
         <button type="submit" class="send" id="ask">发送</button>
       </form>
     </section>
@@ -86,7 +93,6 @@
     </aside>
   </div>
 
-  <!-- hidden answer mount kept for JS compatibility -->
   <div id="answer" hidden></div>
 
   <script src="../_shared/llm.js"></script>

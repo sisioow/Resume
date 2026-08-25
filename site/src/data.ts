@@ -13,7 +13,7 @@ export const site = {
   /**
    * 国内可预览入口：Cloudflare Pages
    */
-  mirror: 'https://resume-shihongwei.pages.dev/',
+  mirror: 'https://resume-due.pages.dev/',
   /** OSS 仅备份，默认域名无法在线预览 */
   ossBackup: 'https://shihongwei-resume.oss-cn-beijing.aliyuncs.com/index.html',
 
@@ -37,7 +37,7 @@ export const showcaseTabs: ShowcaseTab[] = [
     prefix: 'Agent',
     items: [
       { name: 'Deep Research 深度调研', out: '带引用研究报告' },
-      { name: '企业知识库客服 Agent', out: 'RAG 可溯源答复' },
+      { name: 'RAG知识库智能检索', out: '简历默认库 · 可溯源答复' },
       { name: 'python+harness架构agent', out: '端到端 Agent 链路就绪' },
       { name: 'n8n工作流', out: '自动化交付跑通' },
     ],
@@ -194,18 +194,18 @@ export const projects: Project[] = [
   },
   {
     id: 'kb-agent',
-    name: '企业知识库客服 Agent',
+    name: 'RAG知识库智能检索',
     tag: '垂类 · RAG',
     status: 'live',
-    hook: '生产向 RAG：混合检索 → Rerank → 带引用回答，并展示 Hit@3 / 忠实度',
+    hook: '默认挂载「我的简历」知识库：混合检索 → Rerank → deepseek-v4-pro 带引用作答',
     description:
-      '企业知识库客服演示台。切换「产品手册 / 售后政策」知识库后提问，可视化展示切片命中分、重排 Top3，并生成带引用答复与简易评测指标。补齐 Agent 岗高频要求的 RAG、溯源与可观测表达。',
+      'RAG 智能检索工作台。左侧默认知识库为个人简历（履历/项目/技能），另可切换示例产品手册与售后政策；提问后可视化展示切片命中与重排 Top3，再由 deepseek-v4-pro 生成带引用答复，并展示 Hit@3 / 忠实度。演示地址：/demos/kb-agent/。',
     focus: [
-      { title: '可交互', body: '本地静态演示即可点测；预设高频售后/产品问题一键切换。' },
-      { title: '工程表达', body: '把检索质量与回答忠实度做成可见指标，而不是只给一段答案。' },
+      { title: '可交互', body: '默认快捷问题均为简历相关；也可切换示例知识库对比检索效果。' },
+      { title: '工程表达', body: '检索质量与回答忠实度可见；回答严格 grounded 在知识库切片，减少幻觉。' },
     ],
     demo: './demos/kb-agent/',
-    stack: ['RAG', 'Rerank', 'Citation', 'Eval'],
+    stack: ['RAG', 'Rerank', 'Citation', 'DeepSeek'],
   },
   {
     id: 'crewai',
@@ -340,8 +340,8 @@ export const demos: Demo[] = [
     external: './demos/deep-research/',
   },
   {
-    title: '知识库客服 Agent',
-    description: 'RAG 检索命中、Rerank 与带引用回答，可网页点测。',
+    title: 'RAG知识库智能检索',
+    description: '默认「我的简历」知识库：切片命中、Rerank 与带引用作答。',
     external: './demos/kb-agent/',
   },
   {
