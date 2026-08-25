@@ -131,18 +131,6 @@ body {
   box-shadow: 0 0 0 3px rgba(25, 168, 146, 0.18);
 }
 
-.scenario-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1rem; }
-.scenario {
-  font: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
-  padding: 0.45rem 0.7rem; border-radius: 999px;
-  border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
-  transition: all 0.2s;
-}
-.scenario:hover { color: var(--ink); border-color: rgba(15, 122, 108, 0.35); }
-.scenario.active {
-  background: var(--ink); color: #f4fffc; border-color: var(--ink);
-}
-
 .actions { display: flex; gap: 0.55rem; flex-wrap: wrap; }
 .btn {
   font: inherit; font-weight: 650; font-size: 0.88rem; cursor: pointer;
