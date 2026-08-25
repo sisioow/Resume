@@ -221,14 +221,6 @@ async function runCrew() {
   replayBtn.disabled = false
 }
 
-document.querySelectorAll('.scenario').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.scenario').forEach((b) => b.classList.remove('active'))
-    btn.classList.add('active')
-    topicInput.value = btn.dataset.topic
-  })
-})
-
 kickoffBtn.addEventListener('click', runCrew)
 replayBtn.addEventListener('click', () => runCrew())
 
