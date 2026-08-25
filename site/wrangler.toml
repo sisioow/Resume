@@ -6,7 +6,14 @@
 #   Build output directory: dist
 #
 # 注意：必须用 npm install（不要用默认 npm ci），否则 lock 偶发不同步会失败。
+#
+# DeepSeek 秘钥（Pages → Settings → Environment variables / wrangler pages secret）：
+#   DEEPSEEK_API_KEY = sk-...
+#   DEEPSEEK_MODEL   = deepseek-v4-pro（可选，默认即此）
 
-name = "resume-shihongwei"
+name = "resume-due"
 compatibility_date = "2026-01-01"
 pages_build_output_dir = "dist"
+
+[vars]
+DEEPSEEK_MODEL = "deepseek-v4-pro"

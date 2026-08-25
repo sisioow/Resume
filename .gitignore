@@ -17,3 +17,9 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# secrets — never commit API keys
+**/.dev.vars
+**/.env
+**/.env.*
+!**/.env.example

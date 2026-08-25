@@ -12,10 +12,11 @@ const hudBody = $('#hud-body')
 const stepChip = $('#step-chip')
 const extractEl = $('#extract')
 const extractBody = $('#extract-body')
+const modelEl = $('#model')
 
 let abort = false
 let running = false
-const totalSteps = 8
+let totalSteps = 8
 
 function sleep(ms) {
   return new Promise((r) => {
@@ -119,51 +120,75 @@ function detectScenario(task) {
   return 'pricing'
 }
 
-async function runPricingFlow() {
+async function planWithModel(task, scenario) {
+  think('正在用 deepseek-v4-pro 规划浏览器动作…')
+  logAction('调用 deepseek-v4-pro · 任务规划')
+  const { data, model } = await DemoLLM.chatJson(
+    [
+      {
+        role: 'system',
+        content:
+          '你是 Browser-Use 规划器。输出 JSON：{"thoughts":["步骤思考1",...],"actions":["动作描述1",...],"extract_hint":"最终抽取摘要"}。thoughts/actions 各 4～7 条，中文，贴合给定 scenario。',
+      },
+      {
+        role: 'user',
+        content: `任务：${task}\nscenario：${scenario}（pricing=比价页，form=申请表，search=版本检索）`,
+      },
+    ],
+    { max_tokens: 800, temperature: 0.4 },
+  )
+  if (modelEl) modelEl.textContent = model || 'deepseek-v4-pro'
+  return data
+}
+
+async function runPricingFlow(plan) {
   urlEl.textContent = 'https://星云云.示例/定价'
   renderPricing()
   showHud(true)
+  const thoughts = plan.thoughts || []
+  const actions = plan.actions || []
+
   setStep(1)
-  think('打开目标站点，定位定价区块与三档套餐卡片。')
-  logAction('导航 → /定价')
+  think(thoughts[0] || '打开定价页')
+  logAction(actions[0] || '导航 → /定价')
   moveCursor(120, 140)
-  await sleep(700)
+  await sleep(600)
   if (abort) return
 
   setStep(2)
-  think('识别页面：入门版 / 专业版 / 企业版。优先读取价格与功能列表。')
-  logAction('提取页面 · 3 张套餐卡片')
+  think(thoughts[1] || '识别三档套餐')
+  logAction(actions[1] || '提取页面 · 套餐卡片')
   moveCursor(280, 260)
-  await sleep(650)
+  await sleep(550)
 
   setStep(3)
   $('#plan-starter')?.classList.add('spotlight')
-  think('聚焦入门版：¥199 / 月，适合轻量试用。')
-  logAction('高亮 · 入门版卡片', 'click')
+  think(thoughts[2] || '阅读入门版')
+  logAction(actions[2] || '高亮 · 入门版', 'click')
   moveCursor(180, 300)
-  await sleep(700)
+  await sleep(600)
   $('#plan-starter')?.classList.remove('spotlight')
 
   setStep(4)
   $('#plan-pro')?.classList.add('spotlight')
-  think('专业版含 MCP 工具与优先队列，性价比最高。')
-  logAction('点击 · 专业版卡片', 'click')
+  think(thoughts[3] || '阅读专业版')
+  logAction(actions[3] || '点击 · 专业版', 'click')
   moveCursor(360, 290)
-  await sleep(750)
+  await sleep(650)
   $('#plan-pro')?.classList.remove('spotlight')
 
   setStep(5)
   $('#plan-scale')?.classList.add('spotlight')
-  think('企业版面向团队：单点登录 + 审计，需销售对接。')
-  logAction('滚动并阅读 · 企业版', 'click')
+  think(thoughts[4] || '阅读企业版')
+  logAction(actions[4] || '阅读 · 企业版', 'click')
   moveCursor(520, 300)
-  await sleep(700)
+  await sleep(600)
   $('#plan-scale')?.classList.remove('spotlight')
 
   setStep(6)
-  think('汇总结构化字段：套餐 / 月费 / 亮点。')
-  logAction('结构化输出 · 价格对比', 'extract')
-  await sleep(600)
+  think(thoughts[5] || '汇总结构化字段')
+  logAction(actions[5] || '结构化输出', 'extract')
+  await sleep(450)
 
   setStep(7)
   extractBody.innerHTML = `
@@ -172,101 +197,107 @@ async function runPricingFlow() {
     <tr><td>企业版</td><td>¥1999</td><td>单点登录 · 专属客户成功</td></tr>
   `
   extractEl.hidden = false
-  think('抽取完成。三档对比表已就绪，可导出给产品评审。')
-  logAction('完成 · 已抽取 3 行', 'extract')
+  think(plan.extract_hint || thoughts[6] || '抽取完成')
+  logAction('完成 · 已抽取对比表', 'extract')
   setStep(8)
 }
 
-async function runFormFlow() {
+async function runFormFlow(plan) {
   extractEl.hidden = true
   urlEl.textContent = 'https://招聘.示例/申请/agent-工程师'
   renderForm()
   showHud(true)
+  const thoughts = plan.thoughts || []
+  const actions = plan.actions || []
+
   setStep(1)
-  think('进入申请页，读取必填字段与上传控件。')
-  logAction('导航 → /申请')
+  think(thoughts[0] || '进入申请页')
+  logAction(actions[0] || '导航 → /申请')
   moveCursor(140, 160)
-  await sleep(600)
+  await sleep(500)
 
   const fields = [
-    ['f-name', '施宏威', 2, '输入 · 姓名'],
-    ['f-email', '15587742070@163.com', 3, '输入 · 邮箱'],
-    ['f-site', 'https://resume-shihongwei.pages.dev/', 4, '输入 · 作品集'],
+    ['f-name', '施宏威', 2, actions[1] || '输入 · 姓名'],
+    ['f-email', '15587742070@163.com', 3, actions[2] || '输入 · 邮箱'],
+    ['f-site', 'https://resume-due.pages.dev/', 4, actions[3] || '输入 · 作品集'],
   ]
-  for (const [id, value, step, label] of fields) {
+  for (let i = 0; i < fields.length; i++) {
+    const [id, value, step, label] = fields[i]
     if (abort) return
     setStep(step)
     const input = $(`#${id}`)
     moveCursor(input.offsetLeft + 80, input.offsetTop + 120)
-    const fieldName = { 'f-name': '姓名', 'f-email': '邮箱', 'f-site': '作品集' }[id]
-    think(`填写${fieldName}…`)
+    think(thoughts[i + 1] || label)
     logAction(label, 'type')
-    await sleep(400)
+    await sleep(280)
     input.value = ''
     for (const ch of value) {
       if (abort) return
       input.value += ch
-      await sleep(28)
+      await sleep(22)
     }
     input.classList.add('filled')
-    await sleep(250)
+    await sleep(180)
   }
 
   setStep(5)
   const file = $('#f-resume')
   moveCursor(file.offsetLeft + 100, file.offsetTop + 130)
-  think('上传简历文件 简历.pdf')
-  logAction('上传文件 · 简历.pdf', 'click')
-  await sleep(500)
+  think(thoughts[5] || '上传简历')
+  logAction(actions[4] || '上传文件 · 简历.pdf', 'click')
+  await sleep(400)
   file.textContent = '✓ 简历.pdf（248 KB）'
   file.classList.add('done')
 
   setStep(6)
   const submit = $('#f-submit')
   moveCursor(submit.offsetLeft + 80, submit.offsetTop + 140)
-  think('校验通过，提交申请。')
-  logAction('点击 · 提交申请', 'click')
-  await sleep(450)
+  think(thoughts[6] || '提交申请')
+  logAction(actions[5] || '点击 · 提交申请', 'click')
+  await sleep(400)
   submit.classList.add('pulse')
-  await sleep(500)
+  await sleep(400)
 
   setStep(8)
-  think('申请已提交。表单填写与文件上传动作演示完成。')
+  think(plan.extract_hint || '申请已提交')
   logAction('完成 · 申请已提交', 'extract')
   pageEl.innerHTML = `<div class="splash"><strong>申请已提交</strong><p>感谢投递，我们将尽快审阅你的作品集。</p></div>`
 }
 
-async function runSearchFlow() {
+async function runSearchFlow(plan) {
   extractEl.hidden = true
   urlEl.textContent = 'https://github.com/search'
   renderSearch()
   showHud(true)
+  const thoughts = plan.thoughts || []
+  const actions = plan.actions || []
+
   setStep(1)
-  think('打开仓库搜索，准备查询 Browser-Use 最新版本。')
-  logAction('导航 → 仓库搜索')
+  think(thoughts[0] || '打开仓库搜索')
+  logAction(actions[0] || '导航 → 仓库搜索')
   moveCursor(160, 150)
-  await sleep(500)
+  await sleep(450)
 
   setStep(2)
   const q = $('#q')
   const query = 'browser-use 版本'
-  think(`输入检索词：${query}`)
+  think(thoughts[1] || `输入：${query}`)
   moveCursor(220, 170)
-  logAction('输入 · 搜索关键词', 'type')
+  logAction(actions[1] || '输入 · 搜索关键词', 'type')
   for (const ch of query) {
     if (abort) return
     q.value += ch
-    await sleep(35)
+    await sleep(28)
   }
-  await sleep(400)
+  await sleep(300)
 
   setStep(4)
   urlEl.textContent = 'https://github.com/browser-use/browser-use/releases'
   $('#r1')?.classList.add('spotlight')
-  think('定位主仓库，进入版本发布页查看最新版本。')
-  logAction('点击 · browser-use/browser-use', 'click')
+  think(thoughts[2] || '进入版本发布页')
+  logAction(actions[2] || '点击 · browser-use/browser-use', 'click')
   moveCursor(240, 250)
-  await sleep(700)
+  await sleep(600)
 
   setStep(6)
   pageEl.innerHTML = `
@@ -279,12 +310,12 @@ async function runSearchFlow() {
       </div>
     </div>
   `
-  think('提取版本 v0.13.7 与亮点：命令行 3.0、演示面板、MCP。')
-  logAction('抽取 · 版本号与亮点', 'extract')
-  await sleep(700)
+  think(thoughts[3] || '提取版本信息')
+  logAction(actions[3] || '抽取 · 版本号与亮点', 'extract')
+  await sleep(550)
 
   setStep(8)
-  think('情报检索完成，可写入知识库或周报。')
+  think(plan.extract_hint || thoughts[4] || '情报检索完成')
   logAction('完成 · 已记录版本说明', 'extract')
 }
 
@@ -299,17 +330,22 @@ async function start() {
   cursorEl.hidden = true
   showHud(false)
   setStep(0)
+  if (modelEl) modelEl.textContent = 'deepseek-v4-pro'
 
   const task = taskEl.value.trim()
-  think(`规划任务：${task}`)
-  logAction('启动智能体（最多 8 步）')
-  await sleep(500)
-  if (abort) return finish()
-
   const scenario = detectScenario(task)
-  if (scenario === 'form') await runFormFlow()
-  else if (scenario === 'search') await runSearchFlow()
-  else await runPricingFlow()
+
+  try {
+    const plan = await planWithModel(task, scenario)
+    if (abort) return finish()
+    totalSteps = 8
+    if (scenario === 'form') await runFormFlow(plan)
+    else if (scenario === 'search') await runSearchFlow(plan)
+    else await runPricingFlow(plan)
+  } catch (err) {
+    think(`规划失败：${err.message || err}`)
+    logAction(`错误：${err.message || err}`)
+  }
 
   finish()
 }
@@ -334,3 +370,6 @@ document.querySelectorAll('#presets button').forEach((btn) => {
     taskEl.value = btn.dataset.task
   })
 })
+
+if (modelEl) modelEl.textContent = 'deepseek-v4-pro'
+think('等待任务…将调用 deepseek-v4-pro 规划浏览器动作')

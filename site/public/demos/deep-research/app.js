@@ -1,94 +1,7 @@
-const presets = {
-  framework: {
-    topic: '对比 LangGraph / CrewAI / AutoGen 在生产 Agent 中的适用边界与选型建议',
-    plan: ['定义生产约束：状态机、HITL、可观测', '检索三框架官方能力边界', '收集企业落地案例与反模式', '形成选型决策矩阵'],
-    sources: [
-      { title: 'LangGraph Docs · Durable execution', score: 0.91, note: '强调 checkpoint、人审节点与可恢复执行' },
-      { title: 'CrewAI Examples · Role crews', score: 0.84, note: '角色协作原型快，长任务控制力偏弱' },
-      { title: 'AutoGen / AG2 Studio', score: 0.8, note: '对话式多 Agent 可视化强，工程约束需自建' },
-      { title: 'Uber / Klarna 工程分享摘录', score: 0.76, note: '生产更看重状态图与评测闭环' },
-      { title: '社区踩坑合集 · 工具死循环', score: 0.72, note: '无预算熔断与 schema 校验时失败率高' },
-    ],
-    conflicts: 2,
-    report: {
-      title: '生产 Agent 框架选型简报',
-      sections: [
-        {
-          h: '结论先行',
-          p: '若核心诉求是可控长任务与人审，优先 LangGraph；若要快速角色协作原型，用 CrewAI；若强调多 Agent 对话编排可视化，可看 AutoGen/AG2。三者不是互斥，常见组合是「LangGraph 做 Runtime + Crew 做业务角色包」。',
-          cites: [1, 4],
-        },
-        {
-          h: '能力边界',
-          p: 'LangGraph 在 checkpoint / HITL / 轨迹回放上更完整；CrewAI 交付速度高但需自补 Guardrails；AutoGen 适合研究对话策略，落到生产需补状态与评测层。',
-          cites: [1, 2, 3],
-        },
-        {
-          h: '风险与建议',
-          p: '统一补齐：Tool Schema 校验、重试预算、Trace、离线评测集。没有 Eval 的框架选型讨论，很难在面试/评审中站得住。',
-          cites: [5],
-        },
-      ],
-      risk: '演示数据为静态证据池模拟；真实落地需替换为可复现检索与评测流水线。',
-      conf: '0.86',
-    },
-  },
-  pricing: {
-    topic: '三家 AI Agent 平台竞品定价与功能分层拆解（入门 / 专业 / 企业）',
-    plan: ['锁定对比维度：席位、调用量、知识库、工作流', '抓取公开定价页关键字段', '交叉验证功能门控差异', '输出采购决策建议'],
-    sources: [
-      { title: '竞品 A 定价页快照', score: 0.88, note: '入门免费额度 + 按席位升级' },
-      { title: '竞品 B 企业报价白皮书', score: 0.81, note: '强调私有化与审计日志加价' },
-      { title: '竞品 C 功能对照表', score: 0.79, note: '工作流节点在专业版才开放' },
-      { title: '客户访谈纪要（匿名）', score: 0.7, note: '真实成本常被「超额调用」放大' },
-    ],
-    conflicts: 1,
-    report: {
-      title: 'Agent 平台定价情报简报',
-      sections: [
-        {
-          h: '分层判断',
-          p: '入门版适合验证；专业版才具备可编排工作流；企业版溢价主要买在合规、私有化与 SLA，而非模型本身。',
-          cites: [1, 2, 3],
-        },
-        {
-          h: '隐性成本',
-          p: '公开标价往往低估检索调用与长上下文。采购应要求「任务成功率 / 千次对话成本」双指标，而不是只看席位费。',
-          cites: [4],
-        },
-      ],
-      risk: '公开页可能随时变更；上线前需复核抓取时间戳。',
-      conf: '0.81',
-    },
-  },
-  mcp: {
-    topic: 'MCP 工具生态现状：Server 形态、安全边界与 Agent 接入最佳实践',
-    plan: ['梳理 MCP Client/Server 职责', '收集主流 Server 能力清单', '分析权限与沙箱风险', '给出接入清单与护栏'],
-    sources: [
-      { title: 'MCP Spec 摘要', score: 0.93, note: '工具发现、调用与资源读取标准接口' },
-      { title: '官方 Example Servers', score: 0.86, note: '文件系统 / 浏览器 / DB 类能力样例' },
-      { title: '安全讨论：Prompt Injection via Tool', score: 0.83, note: '工具返回污染上下文是高频风险' },
-      { title: '企业接入案例：Tool Gateway', score: 0.77, note: '统一鉴权、审计、配额比单点 Server 更重要' },
-    ],
-    conflicts: 1,
-    report: {
-      title: 'MCP 生态接入简报',
-      sections: [
-        {
-          h: '怎么用才像生产',
-          p: '不要让 Agent 直连一堆 Server。先做 Tool Gateway：鉴权、schema、超时、审计；再按最小权限暴露工具。',
-          cites: [1, 4],
-        },
-        {
-          h: '护栏要点',
-          p: '对工具输出做清洗与长度截断；敏感写操作强制 HITL；每次调用落 Trace，方便回放失败轨迹。',
-          cites: [3],
-        },
-      ],
-      risk: '协议演进快，需锁定版本并做兼容测试。',
-      conf: '0.88',
-    },
-  },
+const TOPIC_PRESETS = {
+  framework: '对比 LangGraph / CrewAI / AutoGen 在生产 Agent 中的适用边界与选型建议',
+  pricing: '三家 AI Agent 平台竞品定价与功能分层拆解（入门 / 专业 / 企业）',
+  mcp: 'MCP 工具生态现状：Server 形态、安全边界与 Agent 接入最佳实践',
 }
 
 const $ = (s) => document.querySelector(s)
@@ -122,50 +35,53 @@ function setStep(id, state) {
     const sid = li.getAttribute('data-step')
     li.classList.remove('active', 'done')
     if (sid === id && state === 'active') li.classList.add('active')
-    if (state === 'done') {
+    if (state === 'done' || state === 'active') {
       const order = ['plan', 'search', 'critic', 'write']
-      if (order.indexOf(sid) <= order.indexOf(id)) li.classList.add('done')
-    }
-    if (state === 'active' && sid !== id) {
-      const order = ['plan', 'search', 'critic', 'write']
-      if (order.indexOf(sid) < order.indexOf(id)) li.classList.add('done')
+      const cur = order.indexOf(id)
+      const mine = order.indexOf(sid)
+      if (state === 'done' && mine <= cur) li.classList.add('done')
+      if (state === 'active' && mine < cur) li.classList.add('done')
+      if (state === 'active' && sid === id) li.classList.add('active')
     }
   })
 }
 
-function renderSources(list, count = 0) {
+function renderSources(list) {
   sourcesEl.innerHTML = list
-    .slice(0, count)
     .map(
       (s, i) => `
     <li>
       <div class="s-top">
-        <strong>[${i + 1}] ${s.title}</strong>
-        <span class="score">rel ${s.score.toFixed(2)}</span>
+        <strong>[${i + 1}] ${DemoLLM.escapeHtml(s.title || '未命名信源')}</strong>
+        <span class="score">rel ${Number(s.score || 0).toFixed(2)}</span>
       </div>
-      <p>${s.note}</p>
+      <p>${DemoLLM.escapeHtml(s.note || '')}</p>
     </li>`,
     )
     .join('')
-  $('#source-count').textContent = `${Math.min(count, list.length)} SRC`
-  $('#m-sources').textContent = String(Math.min(count, list.length))
+  $('#source-count').textContent = `${list.length} SRC`
+  $('#m-sources').textContent = String(list.length)
 }
 
 function renderReport(data) {
-  const body = data.sections
+  const sections = Array.isArray(data.sections) ? data.sections : []
+  const body = sections
     .map((sec) => {
-      const cites = sec.cites.map((c) => `<span class="cite">[${c}]</span>`).join('')
-      return `<h4>${sec.h}</h4><p>${sec.p}${cites}</p>`
+      const cites = (sec.cites || [])
+        .map((c) => `<span class="cite">[${DemoLLM.escapeHtml(String(c))}]</span>`)
+        .join('')
+      return `<h4>${DemoLLM.escapeHtml(sec.h || '章节')}</h4><p>${DemoLLM.escapeHtml(sec.p || '')}${cites}</p>`
     })
     .join('')
   reportEl.innerHTML = `
-    <h3>${data.title}</h3>
-    ${body}
-    <div class="risk">风险标注：${data.risk}</div>
+    <h3>${DemoLLM.escapeHtml(data.title || '调研报告')}</h3>
+    ${body || '<p>模型未返回章节内容。</p>'}
+    <div class="risk">风险标注：${DemoLLM.escapeHtml(data.risk || '无')}</div>
   `
-  $('#out-badge').textContent = `CONF ${data.conf}`
+  const conf = data.conf != null ? String(data.conf) : '—'
+  $('#out-badge').textContent = `CONF ${conf}`
   $('#out-badge').classList.add('ready')
-  $('#m-conf').textContent = data.conf
+  $('#m-conf').textContent = conf
 }
 
 async function runResearch() {
@@ -175,53 +91,113 @@ async function runResearch() {
   startedAt = Date.now()
   logEl.innerHTML = ''
   sourcesEl.innerHTML = ''
-  reportEl.innerHTML = '<p class="placeholder">管线执行中…</p>'
+  reportEl.innerHTML = '<p class="placeholder">正在调用 deepseek-v4-pro…</p>'
   $('#out-badge').textContent = 'GENERATING'
   $('#out-badge').classList.remove('ready')
   $('#m-conflicts').textContent = '0'
   $('#m-conf').textContent = '—'
   $('#m-ms').textContent = '—'
+  $('#m-sources').textContent = '0'
+  $('#source-count').textContent = '0 SRC'
 
-  const pack = presets[activePreset]
-  topicEl.value = pack.topic
+  const topic = topicEl.value.trim() || TOPIC_PRESETS.framework
 
-  setPhase('Planner 拆解中')
-  setStep('plan', 'active')
-  log('Planner 启动：识别约束与子问题')
-  await sleep(500)
-  for (const item of pack.plan) {
-    log(`子任务 + ${item}`)
-    await sleep(320)
+  try {
+    setPhase('Planner 拆解中')
+    setStep('plan', 'active')
+    log('调用 deepseek-v4-pro · Planner')
+    const planRes = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是 Deep Research 的 Planner。根据课题输出 JSON：{"plan":["子任务1","子任务2",...]}，4～6 条可执行子任务。',
+        },
+        { role: 'user', content: `课题：${topic}` },
+      ],
+      { max_tokens: 600, temperature: 0.3 },
+    )
+    const plan = Array.isArray(planRes.data.plan) ? planRes.data.plan : []
+    for (const item of plan) {
+      log(`子任务 + ${DemoLLM.escapeHtml(String(item))}`)
+      await sleep(120)
+    }
+    setStep('plan', 'done')
+
+    setPhase('并行检索中')
+    setStep('search', 'active')
+    log('调用 deepseek-v4-pro · Search Crew')
+    const searchRes = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是调研检索智能体。围绕课题产出证据池 JSON：{"sources":[{"title":"信源名","score":0.0到1.0,"note":"一句话要点"}]}，5～7 条，score 体现相关度。可用公开知识与合理推断，title 要具体。',
+        },
+        {
+          role: 'user',
+          content: `课题：${topic}\n子任务：${JSON.stringify(plan)}`,
+        },
+      ],
+      { max_tokens: 1200, temperature: 0.45 },
+    )
+    const sources = Array.isArray(searchRes.data.sources) ? searchRes.data.sources : []
+    for (let i = 1; i <= sources.length; i++) {
+      renderSources(sources.slice(0, i))
+      log(`命中信源 [${i}] ${DemoLLM.escapeHtml(sources[i - 1].title || '')}`)
+      await sleep(160)
+    }
+    setStep('search', 'done')
+
+    setPhase('交叉验证中')
+    setStep('critic', 'active')
+    log('调用 deepseek-v4-pro · Critic')
+    const criticRes = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是质检 Critic。输出 JSON：{"conflicts":数字,"notes":["裁决说明",...],"kept_source_indexes":[从1开始的保留编号]}',
+        },
+        {
+          role: 'user',
+          content: `课题：${topic}\n证据：${JSON.stringify(sources)}`,
+        },
+      ],
+      { max_tokens: 700, temperature: 0.2 },
+    )
+    const conflicts = Number(criticRes.data.conflicts) || 0
+    $('#m-conflicts').textContent = String(conflicts)
+    ;(criticRes.data.notes || []).slice(0, 4).forEach((n) => log(`裁决 · ${DemoLLM.escapeHtml(String(n))}`))
+    setStep('critic', 'done')
+
+    setPhase('成稿中')
+    setStep('write', 'active')
+    log('调用 deepseek-v4-pro · Writer')
+    const writeRes = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是调研报告 Writer。输出 JSON：{"title":"...","sections":[{"h":"小标题","p":"段落","cites":[1,2]}],"risk":"风险","conf":"0.00到1.00字符串"}。cites 引用证据编号。中文撰写，结论先行。',
+        },
+        {
+          role: 'user',
+          content: `课题：${topic}\n证据：${JSON.stringify(sources)}\n质检：${JSON.stringify(criticRes.data)}`,
+        },
+      ],
+      { max_tokens: 2200, temperature: 0.4 },
+    )
+    renderReport(writeRes.data)
+    setStep('write', 'done')
+    setPhase('完成')
+    log(`调研完成 · model=${writeRes.model || 'deepseek-v4-pro'}`)
+  } catch (err) {
+    setPhase('失败')
+    log(`错误：${DemoLLM.escapeHtml(err.message || String(err))}`)
+    reportEl.innerHTML = `<p class="placeholder">调用失败：${DemoLLM.escapeHtml(err.message || String(err))}</p>`
+    $('#out-badge').textContent = 'ERROR'
   }
-  setStep('plan', 'done')
-
-  setPhase('并行检索中')
-  setStep('search', 'active')
-  log('Search Crew 分发 3 路检索 worker')
-  for (let i = 1; i <= pack.sources.length; i++) {
-    await sleep(380)
-    renderSources(pack.sources, i)
-    log(`命中信源 [${i}] ${pack.sources[i - 1].title}`)
-  }
-  setStep('search', 'done')
-
-  setPhase('交叉验证中')
-  setStep('critic', 'active')
-  log('Critic 检测陈述冲突与过时信息')
-  await sleep(700)
-  $('#m-conflicts').textContent = String(pack.conflicts)
-  log(`裁决冲突 ${pack.conflicts} 处，保留高相关证据`)
-  await sleep(450)
-  setStep('critic', 'done')
-
-  setPhase('成稿中')
-  setStep('write', 'active')
-  log('Writer 生成带引用报告')
-  await sleep(650)
-  renderReport(pack.report)
-  setStep('write', 'done')
-  setPhase('完成')
-  log('调研闭环完成')
 
   $('#m-ms').textContent = `${((Date.now() - startedAt) / 1000).toFixed(1)}s`
   running = false
@@ -235,7 +211,7 @@ function reset() {
   sourcesEl.innerHTML = ''
   logEl.innerHTML = ''
   reportEl.innerHTML =
-    '<p class="placeholder">执行后，情报稿将在此纸面展开，引用编号与风险栏同步出现。</p>'
+    '<p class="placeholder">执行后将调用 deepseek-v4-pro 实时生成带引用情报稿。</p>'
   $('#out-badge').textContent = 'DRAFT PENDING'
   $('#out-badge').classList.remove('ready')
   $('#source-count').textContent = '0 SRC'
@@ -249,10 +225,11 @@ $('#presets').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-id]')
   if (!btn) return
   activePreset = btn.dataset.id
-  topicEl.value = presets[activePreset].topic
+  topicEl.value = TOPIC_PRESETS[activePreset] || topicEl.value
   document.querySelectorAll('#presets button').forEach((b) => b.classList.toggle('is-active', b === btn))
 })
 
 runBtn.addEventListener('click', runResearch)
 $('#reset').addEventListener('click', reset)
 document.querySelector('#presets button').classList.add('is-active')
+topicEl.value = TOPIC_PRESETS.framework

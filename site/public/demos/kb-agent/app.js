@@ -38,26 +38,6 @@ const corpora = {
         base: 0.62,
       },
     ],
-    answers: {
-      0: {
-        html: '根据产品手册，<b>单个 Tool 节点默认最多重试 3 次</b>，可在节点高级设置把 <code>max_retries</code> 配到 0–8；也可用环境变量 <code>AGENT_MAX_RETRIES</code> 设全局默认，节点配置优先。<span class="ref">[P-12]</span><span class="ref">[P-03]</span> 超出上限后会走失败分支或转人工。<span class="ref">[P-12]</span>',
-        cites: ['P-12', 'P-03'],
-        hit: '1.00',
-        faith: '0.93',
-      },
-      1: {
-        html: 'MCP 工具调用的<strong>默认超时是 20 秒</strong>，同会话并发上限为 4；写操作建议单独收紧超时并开启确认。<span class="ref">[P-07]</span>',
-        cites: ['P-07'],
-        hit: '1.00',
-        faith: '0.95',
-      },
-      2: {
-        html: '支持。可在关键步骤插入 <b>Human-in-the-loop</b> 审批节点：Agent 会暂停等待人工确认，超时未处理可按策略自动拒绝或回退。<span class="ref">[P-21]</span>',
-        cites: ['P-21'],
-        hit: '1.00',
-        faith: '0.94',
-      },
-    },
   },
   support: {
     label: '售后政策客服',
@@ -98,26 +78,6 @@ const corpora = {
         base: 0.5,
       },
     ],
-    answers: {
-      0: {
-        html: '企业版 SLA：<b>严重故障 15 分钟内响应</b>，4 小时内给出缓解方案；一般问题 1 个工作日内响应。<span class="ref">[S-02]</span>',
-        cites: ['S-02'],
-        hit: '1.00',
-        faith: '0.96',
-      },
-      1: {
-        html: '支持 <b>PDF / Docx / Markdown / HTML</b>；单文件不超过 50MB，单库不超过 10 万切片。扫描件 PDF 需开启 OCR。<span class="ref">[S-09]</span>',
-        cites: ['S-09'],
-        hit: '1.00',
-        faith: '0.95',
-      },
-      2: {
-        html: '是。私有化套餐默认包含<strong>操作审计日志、角色权限与数据出境开关</strong>，日志默认保留 180 天且可配置。<span class="ref">[S-14]</span>',
-        cites: ['S-14'],
-        hit: '1.00',
-        faith: '0.94',
-      },
-    },
   },
 }
 
@@ -177,6 +137,14 @@ function rankChunks(query) {
     .sort((a, b) => b.score - a.score)
 }
 
+function formatAnswerHtml(text, citeIds) {
+  let html = DemoLLM.escapeHtml(text)
+  for (const id of citeIds) {
+    html = html.replaceAll(`[${id}]`, `<span class="ref">[${id}]</span>`)
+  }
+  return html.replace(/\n/g, '<br />')
+}
+
 async function ask(e) {
   if (e) e.preventDefault()
   if (running) return
@@ -191,64 +159,83 @@ async function ask(e) {
   answerEl.innerHTML = ''
   $('#ans-badge').textContent = '检索中'
   $('#ans-badge').classList.remove('ok')
-  $('#retrieve-state').textContent = 'Embed → Retrieve'
+  $('#retrieve-state').textContent = 'Retrieve'
   $('#m-hit').textContent = '—'
   $('#m-faith').textContent = '—'
   $('#m-lat').textContent = '—'
   const t0 = Date.now()
 
-  addBubble('user', q.replace(/</g, '&lt;'))
-  const typing = addBubble('bot', '正在检索知识库…')
+  addBubble('user', DemoLLM.escapeHtml(q))
+  const typing = addBubble('bot', '正在检索知识库并调用 deepseek-v4-pro…')
 
-  trace(`query: ${q.slice(0, 42)}${q.length > 42 ? '…' : ''}`)
-  await sleep(350)
-  trace('embedding ok · dim=1024')
-  await sleep(280)
-  $('#retrieve-state').textContent = 'Hybrid Recall'
-  const ranked = rankChunks(q)
-  for (let i = 0; i < ranked.length; i++) {
-    await sleep(240)
-    const c = ranked[i]
-    const li = document.createElement('li')
-    if (i < 3) li.classList.add('top')
-    li.innerHTML = `
-      <div class="row">
-        <strong>${c.id} · ${c.title}</strong>
-        <span class="score">${c.score.toFixed(2)}</span>
-      </div>
-      <p>${c.text}</p>
-      ${i < 3 ? '<span class="tag">Rerank Top3</span>' : ''}
-    `
-    chunksEl.appendChild(li)
-    trace(`hit ${c.id} score=${c.score.toFixed(2)}`)
+  try {
+    trace(`query: ${q.slice(0, 48)}${q.length > 48 ? '…' : ''}`)
+    await sleep(200)
+    $('#retrieve-state').textContent = 'Hybrid Recall'
+    const ranked = rankChunks(q)
+    const top = ranked.slice(0, 3)
+
+    for (let i = 0; i < ranked.length; i++) {
+      await sleep(120)
+      const c = ranked[i]
+      const li = document.createElement('li')
+      if (i < 3) li.classList.add('top')
+      li.innerHTML = `
+        <div class="row">
+          <strong>${c.id} · ${DemoLLM.escapeHtml(c.title)}</strong>
+          <span class="score">${c.score.toFixed(2)}</span>
+        </div>
+        <p>${DemoLLM.escapeHtml(c.text)}</p>
+        ${i < 3 ? '<span class="tag">Rerank Top3</span>' : ''}
+      `
+      chunksEl.appendChild(li)
+      trace(`hit ${c.id} score=${c.score.toFixed(2)}`)
+    }
+
+    $('#retrieve-state').textContent = 'deepseek-v4-pro'
+    trace('grounded generation via DeepSeek')
+
+    const { data, model } = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是企业知识库客服。只能依据给定切片回答，禁止编造切片外事实。输出 JSON：{"answer":"中文答复，关键处用[切片ID]引用","cites":["P-12"],"faith":"0.00-1.00","hit_at_3":"0.00-1.00"}。若证据不足，明确说明并给 cites=[]。',
+        },
+        {
+          role: 'user',
+          content: `知识库：${corpora[kb].label}\n问题：${q}\n切片：${JSON.stringify(top)}`,
+        },
+      ],
+      { max_tokens: 900, temperature: 0.2 },
+    )
+
+    const cites = Array.isArray(data.cites) ? data.cites : top.map((c) => c.id)
+    const answerHtml = formatAnswerHtml(data.answer || '（空答复）', cites)
+    typing.innerHTML = `<p>${answerHtml}</p>`
+    answerEl.innerHTML = `<p>${answerHtml}</p>`
+    citesEl.innerHTML = cites
+      .map((id) => {
+        const chunk = corpora[kb].chunks.find((c) => c.id === id) || top.find((c) => c.id === id)
+        return `<div class="cite-item"><b>[${DemoLLM.escapeHtml(id)}]</b> ${DemoLLM.escapeHtml(chunk?.title || '')} — ${DemoLLM.escapeHtml((chunk?.text || '').slice(0, 42))}…</div>`
+      })
+      .join('')
+
+    $('#ans-badge').textContent = '已引用'
+    $('#ans-badge').classList.add('ok')
+    $('#m-hit').textContent = data.hit_at_3 != null ? String(data.hit_at_3) : '1.00'
+    $('#m-faith').textContent = data.faith != null ? String(data.faith) : '—'
+    $('#m-lat').textContent = `${((Date.now() - t0) / 1000).toFixed(1)}s`
+    $('#retrieve-state').textContent = '完成'
+    trace(`done · ${model || 'deepseek-v4-pro'}`)
+  } catch (err) {
+    typing.innerHTML = `<p>调用失败：${DemoLLM.escapeHtml(err.message || String(err))}</p>`
+    $('#ans-badge').textContent = '失败'
+    $('#retrieve-state').textContent = '错误'
+    trace(`error: ${err.message || err}`)
   }
 
-  await sleep(280)
-  $('#retrieve-state').textContent = 'Generate + Cite'
-  trace('grounded generation')
-
-  const matchedPreset = corpora[kb].presets.findIndex((p) => p === q)
-  const ansKey = matchedPreset >= 0 ? matchedPreset : 0
-  const ans = corpora[kb].answers[ansKey]
-
-  typing.innerHTML = `<p>${ans.html}</p>`
-  answerEl.innerHTML = `<p>${ans.html}</p>`
-  citesEl.innerHTML = ans.cites
-    .map((id) => {
-      const chunk = corpora[kb].chunks.find((c) => c.id === id)
-      return `<div class="cite-item"><b>[${id}]</b> ${chunk ? chunk.title : ''} — ${chunk ? chunk.text.slice(0, 42) : ''}…</div>`
-    })
-    .join('')
-
-  $('#ans-badge').textContent = '已引用'
-  $('#ans-badge').classList.add('ok')
-  $('#m-hit').textContent = ans.hit
-  $('#m-faith').textContent = ans.faith
-  $('#m-lat').textContent = `${((Date.now() - t0) / 1000).toFixed(1)}s`
-  $('#retrieve-state').textContent = '完成'
-  trace('done')
   threadEl.scrollTop = threadEl.scrollHeight
-
   running = false
   askBtn.disabled = false
   questionEl.value = ''
@@ -257,7 +244,7 @@ async function ask(e) {
 function clearAll() {
   if (running) return
   threadEl.innerHTML =
-    '<div class="bubble bot welcome"><p>你好，我是企业知识库客服 Agent。选左侧知识库后提问，我会先检索再回答，并附上引用。</p></div>'
+    '<div class="bubble bot welcome"><p>你好，我是企业知识库客服 Agent（deepseek-v4-pro）。选左侧知识库后提问，我会先检索再生成带引用答复。</p></div>'
   chunksEl.innerHTML = '<li class="empty">提问后这里显示命中切片与分数</li>'
   citesEl.innerHTML = ''
   traceEl.innerHTML = ''

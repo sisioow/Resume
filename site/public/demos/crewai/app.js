@@ -105,28 +105,6 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-function buildReport(topic) {
-  return `# ${topic}
-
-## 执行摘要
-- 团队以顺序流程完成：检索 → 成稿 → 质检
-- 覆盖开源 Agent 框架、MCP 工具链与落地交付路径
-- 产出可直接用于内部评审的结构化 Markdown
-
-## 关键发现
-1. **编排层**：Crews 解决角色协作；Flows 解决事件驱动分支
-2. **工具层**：搜索 / RAG / 文件写入形成闭环
-3. **质量层**：质检官 + 护栏降低幻觉与漏项
-
-## 建议下一步
-- 接入真实搜索 / 爬虫工具
-- 用流程可视化导出协作图
-- 将报告节点接到 CI 或知识库
-
----
-_由 CrewAI 任务控制台生成（演示）_`
-}
-
 async function runCrew() {
   if (running) return
   running = true
@@ -145,60 +123,96 @@ async function runCrew() {
     msStat.textContent = `${((performance.now() - startedAt) / 1000).toFixed(1)}秒`
   }, 100)
 
-  phaseEl.textContent = '启动团队'
-  pushLog(`创建协作团队 · 主题 = <b>${topic}</b>`)
-  await sleep(500)
+  try {
+    phaseEl.textContent = '启动团队'
+    pushLog(`创建协作团队 · 主题 = <b>${DemoLLM.escapeHtml(topic)}</b> · deepseek-v4-pro`)
+    await sleep(300)
 
-  phaseEl.textContent = '任务 1 · 检索'
-  setAgentState('researcher', 'active')
-  setLink(0)
-  pushLog(`<b>研究员</b> 接收任务：搜集「${topic}」一手材料`)
-  await sleep(700)
-  pushLog(`调用工具 <b>网络搜索</b> · 关键词「${topic}」`, 'tool')
-  await sleep(900)
-  pushLog(`调用工具 <b>网页检索</b> · 抓取 6 篇高相关来源`, 'tool')
-  await sleep(800)
-  pushLog(`研究员完成笔记 · 12 条洞察 / 8 条引用`, 'done')
-  setAgentState('researcher', 'done')
-  tasksDone = 1
-  tasksStat.textContent = '1'
-  await sleep(400)
+    phaseEl.textContent = '任务 1 · 检索'
+    setAgentState('researcher', 'active')
+    setLink(0)
+    pushLog(`<b>研究员</b> 调用模型搜集「${DemoLLM.escapeHtml(topic)}」`)
+    const research = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是多智能体团队中的研究员。输出 JSON：{"notes":["洞察1",...],"sources":["来源1",...],"tools":["调用的工具名"]}',
+        },
+        { role: 'user', content: `主题：${topic}` },
+      ],
+      { max_tokens: 900, temperature: 0.45 },
+    )
+    ;(research.data.tools || ['网络搜索']).forEach((t) => pushLog(`调用工具 <b>${DemoLLM.escapeHtml(t)}</b>`, 'tool'))
+    ;(research.data.notes || []).slice(0, 4).forEach((n) => pushLog(`笔记 · ${DemoLLM.escapeHtml(n)}`))
+    pushLog(`研究员完成 · ${(research.data.sources || []).length} 条引用`, 'done')
+    setAgentState('researcher', 'done')
+    tasksDone = 1
+    tasksStat.textContent = '1'
 
-  phaseEl.textContent = '任务 2 · 成稿'
-  setAgentState('analyst', 'active')
-  setLink(0)
-  pushLog(`<b>分析师</b> 接手上下文 · 开始结构化成稿`)
-  await sleep(750)
-  pushLog(`委派确认：沿用研究员引用图，补充落地路径章节`)
-  await sleep(850)
-  pushLog(`写入草稿 <b>报告.md</b> · 共 4 个章节`, 'tool')
-  await sleep(700)
-  pushLog(`分析师完成初稿`, 'done')
-  setAgentState('analyst', 'done')
-  tasksDone = 2
-  tasksStat.textContent = '2'
-  await sleep(350)
+    phaseEl.textContent = '任务 2 · 成稿'
+    setAgentState('analyst', 'active')
+    setLink(0)
+    pushLog(`<b>分析师</b> 接手上下文 · deepseek-v4-pro 成稿`)
+    const draft = await DemoLLM.chat(
+      [
+        {
+          role: 'system',
+          content:
+            '你是多智能体团队中的分析师。根据研究员笔记写一份中文 Markdown 报告，含：执行摘要、关键发现、建议下一步。不要用代码围栏包裹全文。',
+        },
+        {
+          role: 'user',
+          content: `主题：${topic}\n研究员输出：${JSON.stringify(research.data)}`,
+        },
+      ],
+      { max_tokens: 1600, temperature: 0.5 },
+    )
+    pushLog(`写入草稿 <b>报告.md</b>`, 'tool')
+    pushLog(`分析师完成初稿`, 'done')
+    setAgentState('analyst', 'done')
+    tasksDone = 2
+    tasksStat.textContent = '2'
 
-  phaseEl.textContent = '任务 3 · 质检'
-  setAgentState('critic', 'active')
-  setLink(2)
-  pushLog(`<b>质检官</b> 启动质检 · 护栏最大重试 2 次`)
-  await sleep(650)
-  pushLog(`检查项：事实引用 / 过度承诺 / 可执行性`)
-  await sleep(800)
-  pushLog(`发现 1 处表述过强 → 回写分析师修正`, 'tool')
-  setLink(1)
-  await sleep(700)
-  pushLog(`质检通过 · 风险标注 2 条`, 'done')
-  setAgentState('critic', 'done')
-  tasksDone = 3
-  tasksStat.textContent = '3'
+    phaseEl.textContent = '任务 3 · 质检'
+    setAgentState('critic', 'active')
+    setLink(2)
+    pushLog(`<b>质检官</b> 启动质检 · deepseek-v4-pro`)
+    const critique = await DemoLLM.chatJson(
+      [
+        {
+          role: 'system',
+          content:
+            '你是质检官。输出 JSON：{"pass":true/false,"issues":["问题"],"risks":["风险"],"final_report":"修订后的完整 Markdown 报告"}。必须给出 final_report。',
+        },
+        {
+          role: 'user',
+          content: `主题：${topic}\n初稿：\n${draft.content}`,
+        },
+      ],
+      { max_tokens: 2000, temperature: 0.25 },
+    )
+    ;(critique.data.issues || []).slice(0, 3).forEach((i) => pushLog(`质检项 · ${DemoLLM.escapeHtml(i)}`, 'tool'))
+    ;(critique.data.risks || []).slice(0, 2).forEach((r) => pushLog(`风险 · ${DemoLLM.escapeHtml(r)}`))
+    pushLog(critique.data.pass === false ? '已回写修正并再检' : '质检通过', 'done')
+    setAgentState('critic', 'done')
+    tasksDone = 3
+    tasksStat.textContent = '3'
 
-  phaseEl.textContent = '已交付'
-  reportBody.textContent = buildReport(topic)
-  reportEl.hidden = false
-  pushLog(`团队完成 · 产物已落盘 <b>报告.md</b>`, 'done')
-  setLink(-1)
+    phaseEl.textContent = '已交付'
+    reportBody.textContent =
+      critique.data.final_report ||
+      draft.content ||
+      `# ${topic}\n\n（模型未返回报告正文）`
+    reportEl.hidden = false
+    pushLog(`团队完成 · model=${critique.model || 'deepseek-v4-pro'}`, 'done')
+    setLink(-1)
+  } catch (err) {
+    phaseEl.textContent = '失败'
+    pushLog(`错误：${DemoLLM.escapeHtml(err.message || String(err))}`)
+    reportBody.textContent = `调用失败：${err.message || err}`
+    reportEl.hidden = false
+  }
 
   clearInterval(timer)
   msStat.textContent = `${((performance.now() - startedAt) / 1000).toFixed(1)}秒`
@@ -216,9 +230,7 @@ document.querySelectorAll('.scenario').forEach((btn) => {
 })
 
 kickoffBtn.addEventListener('click', runCrew)
-replayBtn.addEventListener('click', async () => {
-  await runCrew()
-})
+replayBtn.addEventListener('click', () => runCrew())
 
 renderAgents()
-pushLog('控制台就绪 · 点击「启动团队」或「自动演示」开始录屏')
+pushLog('控制台就绪 · deepseek-v4-pro · 点击「启动团队」开始真实多智能体协作')
