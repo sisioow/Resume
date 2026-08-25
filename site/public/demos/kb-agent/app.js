@@ -162,13 +162,292 @@ const askBtn = $('#ask')
 const presetsEl = $('#presets')
 const threadEl = $('#thread')
 const composer = $('#composer')
+const kbSwitch = $('#kb-switch')
+const fileInput = $('#kb-file')
+const uploadBtn = $('#kb-upload-btn')
+const uploadStatus = $('#upload-status')
+const uploadFilesEl = $('#upload-files')
+
+const MAX_FILE_BYTES = 8 * 1024 * 1024
+const CHUNK_SIZE = 420
+const MAX_CHUNKS_PER_FILE = 36
+const UPLOAD_SYSTEM =
+  '你是知识库问答助手。只能依据给定上传文档切片回答，禁止编造。语气专业简洁。输出 JSON：{"answer":"中文答复，关键事实后加[切片ID]","cites":["U-01"],"faith":"0.00-1.00","hit_at_3":"0.00-1.00"}。证据不足时明确说明并 cites=[]。'
 
 let kb = 'resume'
 let presetIndex = 0
 let running = false
+let uploadSeq = 0
+/** @type {{ name: string, chunks: number }[]} */
+let uploadedMeta = []
+
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+}
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
+}
+
+function setUploadStatus(msg, isError = false) {
+  if (!msg) {
+    uploadStatus.hidden = true
+    uploadStatus.textContent = ''
+    uploadStatus.classList.remove('is-error')
+    return
+  }
+  uploadStatus.hidden = false
+  uploadStatus.textContent = msg
+  uploadStatus.classList.toggle('is-error', isError)
+}
+
+function extOf(name) {
+  const i = name.lastIndexOf('.')
+  return i >= 0 ? name.slice(i + 1).toLowerCase() : ''
+}
+
+function normalizeText(text) {
+  return String(text || '')
+    .replace(/\u0000/g, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
+function chunkText(text, fileName) {
+  const clean = normalizeText(text)
+  if (!clean) return []
+  const parts = []
+  const paras = clean.split(/\n{2,}/)
+  let buf = ''
+  for (const para of paras) {
+    const p = para.trim()
+    if (!p) continue
+    if ((buf + '\n\n' + p).length <= CHUNK_SIZE) {
+      buf = buf ? `${buf}\n\n${p}` : p
+      continue
+    }
+    if (buf) parts.push(buf)
+    if (p.length <= CHUNK_SIZE) {
+      buf = p
+    } else {
+      for (let i = 0; i < p.length; i += CHUNK_SIZE) {
+        parts.push(p.slice(i, i + CHUNK_SIZE))
+      }
+      buf = ''
+    }
+  }
+  if (buf) parts.push(buf)
+
+  const limited = parts.slice(0, MAX_CHUNKS_PER_FILE)
+  const shortName = fileName.length > 28 ? `${fileName.slice(0, 25)}…` : fileName
+  return limited.map((body, i) => ({
+    id: `U-${String(++uploadSeq).padStart(2, '0')}`,
+    title: `${shortName} · 切片${i + 1}`,
+    text: body,
+    base: Math.max(0.72, 0.9 - i * 0.01),
+  }))
+}
+
+async function readAsArrayBuffer(file) {
+  return file.arrayBuffer()
+}
+
+async function readAsText(file) {
+  return file.text()
+}
+
+async function extractPdf(file) {
+  const data = await readAsArrayBuffer(file)
+  const pdf = await pdfjsLib.getDocument({ data }).promise
+  const pages = []
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent()
+    pages.push(content.items.map((it) => it.str).join(' '))
+  }
+  return pages.join('\n\n')
+}
+
+async function extractDocx(file) {
+  const data = await readAsArrayBuffer(file)
+  const result = await mammoth.extractRawText({ arrayBuffer: data })
+  return result.value || ''
+}
+
+async function extractFileText(file) {
+  const ext = extOf(file.name)
+  if (ext === 'doc') {
+    throw new Error('暂不支持旧版 .doc，请另存为 .docx 或 PDF 后再上传')
+  }
+  if (ext === 'pdf') return extractPdf(file)
+  if (ext === 'docx') return extractDocx(file)
+  if (['txt', 'md', 'markdown', 'csv', 'json', 'html', 'htm', 'rtf'].includes(ext)) {
+    return readAsText(file)
+  }
+  // MIME fallback
+  if (file.type === 'application/pdf') return extractPdf(file)
+  if (file.type.includes('wordprocessingml')) return extractDocx(file)
+  if (file.type.startsWith('text/') || file.type === 'application/json') return readAsText(file)
+  throw new Error(`暂不支持 ${ext || file.type || '该格式'}，请用 PDF / DOCX / TXT / MD 等`)
+}
+
+function ensureUploadCorpus() {
+  if (!corpora.upload) {
+    corpora.upload = {
+      label: '已上传文档',
+      system: UPLOAD_SYSTEM,
+      presets: [
+        '这份文档的主要内容是什么？',
+        '请提炼文档中的关键要点。',
+        '文档里有没有明确的结论或数据？',
+      ],
+      chunks: [],
+    }
+  }
+  return corpora.upload
+}
+
+function syncUploadKbButton() {
+  let btn = kbSwitch.querySelector('[data-kb="upload"]')
+  const has = uploadedMeta.length > 0
+  if (!has) {
+    btn?.remove()
+    return
+  }
+  const totalChunks = corpora.upload?.chunks.length || 0
+  const label = uploadedMeta.length === 1 ? uploadedMeta[0].name : `${uploadedMeta.length} 个文件`
+  if (!btn) {
+    btn = document.createElement('button')
+    btn.type = 'button'
+    btn.dataset.kb = 'upload'
+    btn.innerHTML = `
+      <span class="dot alt"></span>
+      <div>
+        <strong>已上传文档</strong>
+        <em></em>
+      </div>
+    `
+    kbSwitch.appendChild(btn)
+  }
+  btn.querySelector('em').textContent = `${label} · ${totalChunks} 切片`
+}
+
+function renderUploadFiles() {
+  if (!uploadedMeta.length) {
+    uploadFilesEl.hidden = true
+    uploadFilesEl.innerHTML = ''
+    return
+  }
+  uploadFilesEl.hidden = false
+  uploadFilesEl.innerHTML =
+    uploadedMeta
+      .map(
+        (f, i) => `
+      <li>
+        <span title="${DemoLLM.escapeHtml(f.name)}">${DemoLLM.escapeHtml(f.name)}（${f.chunks}）</span>
+        <button type="button" data-remove="${i}">移除</button>
+      </li>
+    `,
+      )
+      .join('') +
+    `<button type="button" class="upload-clear" id="upload-clear-all">清空已上传</button>`
+}
+
+function selectKb(next, { resetThread = true } = {}) {
+  if (!corpora[next]) return
+  kb = next
+  presetIndex = 0
+  kbSwitch.querySelectorAll('button[data-kb]').forEach((b) => {
+    b.classList.toggle('is-active', b.dataset.kb === next)
+  })
+  renderPresets()
+  if (resetThread) clearAll()
+}
+
+async function handleFiles(fileList) {
+  const files = [...fileList]
+  if (!files.length) return
+
+  uploadBtn.disabled = true
+  setUploadStatus('正在解析文件…')
+
+  const corpus = ensureUploadCorpus()
+  let added = 0
+  const errors = []
+
+  for (const file of files) {
+    try {
+      if (file.size > MAX_FILE_BYTES) {
+        throw new Error(`${file.name} 超过 8MB 限制`)
+      }
+      setUploadStatus(`解析中：${file.name}`)
+      const text = await extractFileText(file)
+      const chunks = chunkText(text, file.name).map((c) => ({
+        ...c,
+        source: file.name,
+      }))
+      if (!chunks.length) throw new Error(`${file.name} 未提取到可用文本（可能是扫描版 PDF）`)
+      corpus.chunks.push(...chunks)
+      uploadedMeta.push({ name: file.name, chunks: chunks.length, source: file.name })
+      added += chunks.length
+      trace(`upload ${file.name} → ${chunks.length} chunks`)
+    } catch (err) {
+      errors.push(err.message || String(err))
+    }
+  }
+
+  syncUploadKbButton()
+  renderUploadFiles()
+  uploadBtn.disabled = false
+  fileInput.value = ''
+
+  if (added > 0) {
+    setUploadStatus(`已入库 ${added} 个切片${errors.length ? `；部分失败：${errors[0]}` : ''}`, errors.length > 0)
+    selectKb('upload')
+    addBubble(
+      'bot',
+      `已将本地文件切片写入「已上传文档」知识库（共 ${corpus.chunks.length} 片）。可直接提问或点左侧快捷问题。`,
+    )
+  } else {
+    setUploadStatus(errors[0] || '未能解析任何文件', true)
+  }
+}
+
+function removeUploadedFile(index) {
+  const meta = uploadedMeta[index]
+  if (!meta) return
+  const corpus = ensureUploadCorpus()
+  corpus.chunks = corpus.chunks.filter((c) => c.source !== meta.source)
+  uploadedMeta.splice(index, 1)
+
+  if (!uploadedMeta.length) {
+    delete corpora.upload
+    syncUploadKbButton()
+    renderUploadFiles()
+    setUploadStatus('')
+    if (kb === 'upload') selectKb('resume')
+    return
+  }
+
+  // renumber display only; keep IDs
+  syncUploadKbButton()
+  renderUploadFiles()
+  setUploadStatus(`已移除 ${meta.name}`)
+  if (kb === 'upload') {
+    renderPresets()
+  }
+}
+
+function clearUploads() {
+  delete corpora.upload
+  uploadedMeta = []
+  syncUploadKbButton()
+  renderUploadFiles()
+  setUploadStatus('')
+  if (kb === 'upload') selectKb('resume')
 }
 
 function trace(msg) {
@@ -187,21 +466,21 @@ function addBubble(role, html) {
 }
 
 function welcomeHtml() {
-  return `你好，这里是<strong>RAG知识库智能检索</strong>。当前知识库「${DemoLLM.escapeHtml(corpora[kb].label)}」——先混合检索切片并重排，再由 deepseek-v4-pro 生成带引用答复。`
+  return `你好，这里是<strong>RAG知识库智能检索</strong>。当前知识库「${DemoLLM.escapeHtml(corpora[kb].label)}」——可检索内置库，或上传 PDF / Word / 文本后切片问答。`
 }
 
 function renderPresets() {
-  const list = corpora[kb].presets
+  const list = corpora[kb]?.presets || []
   presetsEl.innerHTML = list
     .map((q, i) => `<button type="button" data-i="${i}">${q}</button>`)
     .join('')
-  questionEl.value = list[presetIndex] || list[0]
-  $('#kb-title').textContent = corpora[kb].label
+  questionEl.value = list[presetIndex] || list[0] || ''
+  $('#kb-title').textContent = corpora[kb]?.label || '知识库'
 }
 
 function rankChunks(query) {
   const q = query.toLowerCase()
-  return corpora[kb].chunks
+  return (corpora[kb]?.chunks || [])
     .map((c) => {
       let boost = 0
       for (const w of q.split(/[^a-z0-9\u4e00-\u9fff]+/).filter(Boolean)) {
@@ -225,6 +504,10 @@ async function ask(e) {
   if (running) return
   const q = questionEl.value.trim()
   if (!q) return
+  if (!corpora[kb]?.chunks?.length) {
+    addBubble('bot', '当前知识库没有可检索切片。请先选择内置库，或上传本地文件。')
+    return
+  }
 
   running = true
   askBtn.disabled = true
@@ -251,7 +534,7 @@ async function ask(e) {
     const top = ranked.slice(0, 3)
 
     for (let i = 0; i < ranked.length; i++) {
-      await sleep(100)
+      await sleep(70)
       const c = ranked[i]
       const li = document.createElement('li')
       if (i < 3) li.classList.add('top')
@@ -264,7 +547,7 @@ async function ask(e) {
         ${i < 3 ? '<span class="tag">Rerank Top3</span>' : ''}
       `
       chunksEl.appendChild(li)
-      trace(`hit ${c.id} score=${c.score.toFixed(2)}`)
+      if (i < 8) trace(`hit ${c.id} score=${c.score.toFixed(2)}`)
     }
 
     $('#retrieve-state').textContent = 'deepseek-v4-pro'
@@ -328,14 +611,10 @@ function clearAll() {
   renderPresets()
 }
 
-$('#kb-switch').addEventListener('click', (e) => {
+kbSwitch.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-kb]')
   if (!btn) return
-  kb = btn.dataset.kb
-  presetIndex = 0
-  document.querySelectorAll('#kb-switch button').forEach((b) => b.classList.toggle('is-active', b === btn))
-  renderPresets()
-  clearAll()
+  selectKb(btn.dataset.kb)
 })
 
 presetsEl.addEventListener('click', (e) => {
@@ -343,6 +622,19 @@ presetsEl.addEventListener('click', (e) => {
   if (!btn) return
   presetIndex = Number(btn.dataset.i)
   questionEl.value = corpora[kb].presets[presetIndex]
+})
+
+uploadBtn.addEventListener('click', () => fileInput.click())
+fileInput.addEventListener('change', () => handleFiles(fileInput.files))
+
+uploadFilesEl.addEventListener('click', (e) => {
+  if (e.target.id === 'upload-clear-all') {
+    clearUploads()
+    return
+  }
+  const btn = e.target.closest('button[data-remove]')
+  if (!btn) return
+  removeUploadedFile(Number(btn.dataset.remove))
 })
 
 composer.addEventListener('submit', ask)

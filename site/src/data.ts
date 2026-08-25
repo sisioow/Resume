@@ -199,9 +199,9 @@ export const projects: Project[] = [
     status: 'live',
     hook: '默认挂载「我的简历」知识库：混合检索 → Rerank → deepseek-v4-pro 带引用作答',
     description:
-      'RAG 智能检索工作台。左侧默认知识库为个人简历（履历/项目/技能），另可切换示例产品手册与售后政策；提问后可视化展示切片命中与重排 Top3，再由 deepseek-v4-pro 生成带引用答复，并展示 Hit@3 / 忠实度。演示地址：/demos/kb-agent/。',
+      'RAG 智能检索工作台。左侧默认知识库为个人简历（履历/项目/技能），另可切换示例产品手册与售后政策；支持上传 PDF / Word(.docx) / 文本等本地文件，浏览器内解析切片入库后可视化命中与重排 Top3，再由 deepseek-v4-pro 生成带引用答复。演示地址：/demos/kb-agent/。',
     focus: [
-      { title: '可交互', body: '默认快捷问题均为简历相关；也可切换示例知识库对比检索效果。' },
+      { title: '可交互', body: '默认快捷问题为简历相关；可上传本地文档即时入库检索。' },
       { title: '工程表达', body: '检索质量与回答忠实度可见；回答严格 grounded 在知识库切片，减少幻觉。' },
     ],
     demo: './demos/kb-agent/',
