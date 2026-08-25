@@ -644,10 +644,41 @@ button {
   color: var(--ink-soft);
 }
 
+.work-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
+}
+
 .work-item h3 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.3rem;
+}
+
+.work-online-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid rgba(10, 110, 104, 0.35);
+  border-radius: 0.45rem;
+  background: rgba(10, 110, 104, 0.12);
+  color: var(--accent-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.work-online-btn:hover {
+  background: rgba(10, 110, 104, 0.2);
+  border-color: var(--accent-deep);
+  color: var(--accent-deep);
+  text-decoration: none;
 }
 
 .work-hook {

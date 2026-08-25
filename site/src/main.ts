@@ -127,11 +127,14 @@ function renderProject(p: Project): string {
 
   const links = [
     linkOrSoon(p.repo, '源码'),
-    p.demo ? linkOrSoon(p.demo, '打开演示') : '',
     p.video ? `<a class="text-link" href="#demos">观看录屏</a>` : '',
   ]
     .filter((x) => x && !x.includes('class="soon"'))
     .join('')
+
+  const onlineBtn = p.demo
+    ? `<a class="work-online-btn" href="${p.demo}" target="_blank" rel="noopener noreferrer">在线使用</a>`
+    : ''
 
   return `
     <article class="work-item reveal" id="${p.id}">
@@ -139,7 +142,10 @@ function renderProject(p: Project): string {
         <span class="work-tag">${p.tag}</span>
         <span class="work-status">${statusLabel[p.status]}</span>
       </div>
-      <h3>${p.name}</h3>
+      <div class="work-title-row">
+        <h3>${p.name}</h3>
+        ${onlineBtn}
+      </div>
       <p class="work-hook">${p.hook}</p>
       <p class="work-desc">${p.description}</p>
       ${focus ? `<ul class="work-focus">${focus}</ul>` : ''}
