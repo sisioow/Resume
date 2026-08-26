@@ -187,7 +187,7 @@ export const projects: Project[] = [
       '面向技术选型与竞品情报的 Deep Research Agent 演示。模拟 Planner / Search Crew / Critic / Writer 全链路，实时展示证据池、冲突裁决次数与综合置信度，输出可溯源研究报告。用于体现 Multi-Agent、Planning、Citation 与轻量 Eval 能力。',
     focus: [
       { title: '竞争力点', body: '不是聊天问答，而是可交叉验证的调研闭环；报告带引用编号与风险标注。' },
-      { title: '可交互', body: '网页内一键跑通，无需 API Key；支持框架选型 / 竞品定价 / MCP 生态三类课题。' },
+      { title: '可交互', body: '网页内一键跑通，无需 API Key；课题自由输入，多智能体全链路真实调用。' },
     ],
     demo: './demos/deep-research/',
     stack: ['Multi-Agent', 'Planning', 'Citation', 'Eval'],

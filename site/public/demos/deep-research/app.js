@@ -1,9 +1,3 @@
-const TOPIC_PRESETS = {
-  framework: '对比 LangGraph / CrewAI / AutoGen 在生产 Agent 中的适用边界与选型建议',
-  pricing: '三家 AI Agent 平台竞品定价与功能分层拆解（入门 / 专业 / 企业）',
-  mcp: 'MCP 工具生态现状：Server 形态、安全边界与 Agent 接入最佳实践',
-}
-
 const $ = (s) => document.querySelector(s)
 const topicEl = $('#topic')
 const sourcesEl = $('#sources')
@@ -12,7 +6,6 @@ const logEl = $('#log')
 const runBtn = $('#run')
 
 let running = false
-let activePreset = 'framework'
 let startedAt = 0
 
 function sleep(ms) {
@@ -27,7 +20,7 @@ function log(msg) {
 }
 
 function setPhase(text) {
-  $('#phase').textContent = String(text).toUpperCase()
+  $('#phase').textContent = String(text)
 }
 
 function setStep(id, state) {
@@ -53,13 +46,13 @@ function renderSources(list) {
     <li>
       <div class="s-top">
         <strong>[${i + 1}] ${DemoLLM.escapeHtml(s.title || '未命名信源')}</strong>
-        <span class="score">rel ${Number(s.score || 0).toFixed(2)}</span>
+        <span class="score">相关度 ${Number(s.score || 0).toFixed(2)}</span>
       </div>
       <p>${DemoLLM.escapeHtml(s.note || '')}</p>
     </li>`,
     )
     .join('')
-  $('#source-count').textContent = `${list.length} SRC`
+  $('#source-count').textContent = `${list.length} 个信源`
   $('#m-sources').textContent = String(list.length)
 }
 
@@ -79,33 +72,37 @@ function renderReport(data) {
     <div class="risk">风险标注：${DemoLLM.escapeHtml(data.risk || '无')}</div>
   `
   const conf = data.conf != null ? String(data.conf) : '—'
-  $('#out-badge').textContent = `CONF ${conf}`
+  $('#out-badge').textContent = `置信度 ${conf}`
   $('#out-badge').classList.add('ready')
   $('#m-conf').textContent = conf
 }
 
 async function runResearch() {
   if (running) return
+  const topic = topicEl.value.trim()
+  if (!topic) {
+    reportEl.innerHTML = '<p class="placeholder">请先输入调研课题，再点击「开始调研」。</p>'
+    topicEl.focus()
+    return
+  }
   running = true
   runBtn.disabled = true
   startedAt = Date.now()
   logEl.innerHTML = ''
   sourcesEl.innerHTML = ''
   reportEl.innerHTML = '<p class="placeholder">正在调用 deepseek-v4-pro…</p>'
-  $('#out-badge').textContent = 'GENERATING'
+  $('#out-badge').textContent = '生成中'
   $('#out-badge').classList.remove('ready')
   $('#m-conflicts').textContent = '0'
   $('#m-conf').textContent = '—'
   $('#m-ms').textContent = '—'
   $('#m-sources').textContent = '0'
-  $('#source-count').textContent = '0 SRC'
-
-  const topic = topicEl.value.trim() || TOPIC_PRESETS.framework
+  $('#source-count').textContent = '0 个信源'
 
   try {
-    setPhase('Planner 拆解中')
+    setPhase('规划拆解中')
     setStep('plan', 'active')
-    log('调用 deepseek-v4-pro · Planner')
+    log('调用 deepseek-v4-pro · 规划智能体')
     const planRes = await DemoLLM.chatJson(
       [
         {
@@ -126,7 +123,7 @@ async function runResearch() {
 
     setPhase('并行检索中')
     setStep('search', 'active')
-    log('调用 deepseek-v4-pro · Search Crew')
+    log('调用 deepseek-v4-pro · 检索智能体')
     const searchRes = await DemoLLM.chatJson(
       [
         {
@@ -151,7 +148,7 @@ async function runResearch() {
 
     setPhase('交叉验证中')
     setStep('critic', 'active')
-    log('调用 deepseek-v4-pro · Critic')
+    log('调用 deepseek-v4-pro · 质检智能体')
     const criticRes = await DemoLLM.chatJson(
       [
         {
@@ -173,7 +170,7 @@ async function runResearch() {
 
     setPhase('成稿中')
     setStep('write', 'active')
-    log('调用 deepseek-v4-pro · Writer')
+    log('调用 deepseek-v4-pro · 成稿智能体')
     const writeRes = await DemoLLM.chatJson(
       [
         {
@@ -191,12 +188,12 @@ async function runResearch() {
     renderReport(writeRes.data)
     setStep('write', 'done')
     setPhase('完成')
-    log(`调研完成 · model=${writeRes.model || 'deepseek-v4-pro'}`)
+    log(`调研完成 · 模型 ${writeRes.model || 'deepseek-v4-pro'}`)
   } catch (err) {
     setPhase('失败')
     log(`错误：${DemoLLM.escapeHtml(err.message || String(err))}`)
     reportEl.innerHTML = `<p class="placeholder">调用失败：${DemoLLM.escapeHtml(err.message || String(err))}</p>`
-    $('#out-badge').textContent = 'ERROR'
+    $('#out-badge').textContent = '失败'
   }
 
   $('#m-ms').textContent = `${((Date.now() - startedAt) / 1000).toFixed(1)}s`
@@ -211,25 +208,15 @@ function reset() {
   sourcesEl.innerHTML = ''
   logEl.innerHTML = ''
   reportEl.innerHTML =
-    '<p class="placeholder">执行后将调用 deepseek-v4-pro 实时生成带引用情报稿。</p>'
-  $('#out-badge').textContent = 'DRAFT PENDING'
+    '<p class="placeholder">输入课题并执行后，将调用 deepseek-v4-pro 实时生成带引用调研稿。</p>'
+  $('#out-badge').textContent = '待生成'
   $('#out-badge').classList.remove('ready')
-  $('#source-count').textContent = '0 SRC'
+  $('#source-count').textContent = '0 个信源'
   $('#m-sources').textContent = '0'
   $('#m-conflicts').textContent = '0'
   $('#m-conf').textContent = '—'
   $('#m-ms').textContent = '—'
 }
 
-$('#presets').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-id]')
-  if (!btn) return
-  activePreset = btn.dataset.id
-  topicEl.value = TOPIC_PRESETS[activePreset] || topicEl.value
-  document.querySelectorAll('#presets button').forEach((b) => b.classList.toggle('is-active', b === btn))
-})
-
 runBtn.addEventListener('click', runResearch)
 $('#reset').addEventListener('click', reset)
-document.querySelector('#presets button').classList.add('is-active')
-topicEl.value = TOPIC_PRESETS.framework

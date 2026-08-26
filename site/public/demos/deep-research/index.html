@@ -6,20 +6,20 @@
   <title>Deep Research · 深度调研 Agent</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,600&family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="scanlines" aria-hidden="true"></div>
+  <div class="wash" aria-hidden="true"></div>
 
   <header class="rail">
     <a class="back" href="../../">作品集</a>
     <div class="id">
-      <span class="sig">INTEL</span>
-      <strong>Deep Research Desk</strong>
+      <span class="sig">调研</span>
+      <strong>Deep Research 工作台</strong>
     </div>
     <div class="rail-right">
-      <span id="phase" class="phase">STANDBY</span>
+      <span id="phase" class="phase">待机</span>
       <span class="clock" id="clock"></span>
     </div>
   </header>
@@ -31,35 +31,31 @@
     </div>
     <div class="brief-form">
       <label>
-        <span>MISSION BRIEF</span>
-        <textarea id="topic" rows="2">对比 LangGraph / CrewAI / AutoGen 在生产 Agent 中的适用边界与选型建议</textarea>
+        <span>调研课题</span>
+        <textarea id="topic" rows="2" placeholder="输入你想调研的课题，例如：对比 A 与 B 在生产环境中的适用边界与选型建议"></textarea>
       </label>
       <div class="brief-row">
-        <div class="presets" id="presets">
-          <button type="button" data-id="framework">框架选型</button>
-          <button type="button" data-id="pricing">竞品定价</button>
-          <button type="button" data-id="mcp">MCP 生态</button>
-        </div>
+        <p class="brief-hint">课题将依次经过 规划 → 检索 → 裁决 → 成稿 四个智能体</p>
         <div class="brief-actions">
-          <button type="button" class="go" id="run">EXECUTE</button>
-          <button type="button" class="reset" id="reset">RESET</button>
+          <button type="button" class="go" id="run">开始调研</button>
+          <button type="button" class="reset" id="reset">重置</button>
         </div>
       </div>
     </div>
   </section>
 
   <ol class="track" id="steps">
-    <li data-step="plan"><b>01</b><span>Planner</span></li>
-    <li data-step="search"><b>02</b><span>Search</span></li>
-    <li data-step="critic"><b>03</b><span>Critic</span></li>
-    <li data-step="write"><b>04</b><span>Writer</span></li>
+    <li data-step="plan"><b>01</b><span>规划</span></li>
+    <li data-step="search"><b>02</b><span>检索</span></li>
+    <li data-step="critic"><b>03</b><span>裁决</span></li>
+    <li data-step="write"><b>04</b><span>成稿</span></li>
   </ol>
 
   <main class="desk">
     <aside class="evidence">
       <div class="ev-head">
         <h2>证据墙</h2>
-        <span id="source-count">0 SRC</span>
+        <span id="source-count">0 个信源</span>
       </div>
       <ul class="sources" id="sources"></ul>
       <div class="meters">
@@ -72,11 +68,11 @@
 
     <section class="paper-wrap">
       <div class="paper-bar">
-        <span>BRIEFING PAPER</span>
-        <span class="badge" id="out-badge">DRAFT PENDING</span>
+        <span>调研简报</span>
+        <span class="badge" id="out-badge">待生成</span>
       </div>
       <article class="report" id="report">
-        <p class="placeholder">执行后，情报稿将在此纸面展开，引用编号与风险栏同步出现。</p>
+        <p class="placeholder">输入课题并执行后，调研稿将在此纸面展开，引用编号与风险栏同步出现。</p>
       </article>
       <ol class="log" id="log"></ol>
     </section>
