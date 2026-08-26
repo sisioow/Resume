@@ -76,7 +76,12 @@ async function browse(url) {
   } catch {
     throw new Error(`抓取接口异常 HTTP ${res.status}`)
   }
-  if (!res.ok) throw new Error(data?.error || `抓取失败 HTTP ${res.status}`)
+  if (!res.ok) {
+    const err = new Error(data?.error || `抓取失败 HTTP ${res.status}`)
+    err.status = data?.status || res.status
+    err.suggestions = data?.suggestions || []
+    throw err
+  }
   return data
 }
 
@@ -127,7 +132,7 @@ async function decide(task, history, page) {
       {
         role: 'system',
         content:
-          '你是 Browser-Use 智能体，控制真实网页抓取。根据任务与当前观察，决定下一步。只输出 JSON：{"thought":"思考","action":"navigate|extract|finish","url":"https://...仅navigate时","summary":"中文结论","columns":["列名"],"rows":[["单元格"]]}。规则：1) 若任务含 URL 或能推断公开网页，先 navigate；2) 已有正文后 extract 或 finish；3) url 必须是完整 http(s)；4) 不要编造页面没有的事实；5) 最多在 5 步内 finish。',
+          '你是 Browser-Use 智能体，控制真实网页抓取。根据任务与当前观察，决定下一步。只输出 JSON：{"thought":"思考","action":"navigate|extract|finish","url":"https://...仅navigate时","summary":"中文结论","columns":["列名"],"rows":[["单元格"]]}。规则：1) 若任务含 URL 或能推断公开网页，先 navigate；2) 已有正文后 extract 或 finish；3) url 必须是完整 http(s)；4) 不要编造页面没有的事实；5) 若 history 里上一跳 navigate 失败（404/不存在），必须换另一个真实存在的 URL 再试，维基优先用已有词条如 Artificial_intelligence，不要重复失败 URL；6) 最多在 5 步内 finish。',
       },
       {
         role: 'user',
