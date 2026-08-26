@@ -1,19 +1,21 @@
-# Browser-Use Pilot Console（演示 UI）
+# Browser-Use Pilot Console
 
-本地静态演示页，模拟 Agent 操控浏览器：点击、输入、抽取（无需 API Key）。
+用户自助输入任务；经 Cloudflare `/api/browse` 真实抓取公开网页，再用 deepseek-v4-pro 多步决策并结构化抽取。
 
 ## 打开方式
 
+作品集站点：`/demos/browser-use/`
+
+本地带 Function：
+
 ```bash
-cd demo-ui
-open index.html
-# 或
-python3 -m http.server 5178
-# 浏览器访问 http://localhost:5178
+cd site
+npm run build
+npx wrangler pages dev dist --compatibility-date=2026-01-01
 ```
 
-## 录屏建议
+## 使用建议
 
-1. 全屏浏览器（推荐 1920×1080）
-2. 选择预设任务（比价 / 表单 / 情报）后点「启动 Agent」
-3. 右侧浏览器舞台会出现光标轨迹、元素高亮与结构化输出
+1. 在任务框写明目标（最好含完整 `https://` URL）
+2. 点「启动智能体」
+3. 右侧会显示真实抓取正文与结构化输出

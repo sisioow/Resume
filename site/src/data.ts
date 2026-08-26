@@ -225,13 +225,13 @@ export const projects: Project[] = [
     name: 'Browser-Use Pilot',
     tag: '浏览器 Agent',
     status: 'live',
-    hook: '自然语言驱动浏览器：导航、点击、填表与结构化抽取',
+    hook: '自然语言驱动真实网页抓取：规划 URL → 抓取正文 → deepseek 结构化抽取',
     description:
-      'Browser-Use 浏览器操作台。Agent 在页面中完成导航、元素高亮、键入与抽取，覆盖竞品比价、表单填写、版本情报三类任务。',
+      'Browser-Use 浏览器操作台。用户自助输入任务后，经 /api/browse 真实抓取公开网页正文，并由 deepseek-v4-pro 多步决策完成抽取；不再使用预设脚本页动画。',
     demo: './demos/browser-use/',
     video: './demos/browser-use.mp4',
     repo: 'https://github.com/sisioow/browser-use',
-    stack: ['Browser-Use', 'CDP', 'Python'],
+    stack: ['Browser Agent', 'Fetch', 'DeepSeek'],
   },
   {
     id: 'wenshu-jingling',
@@ -360,7 +360,7 @@ export const demos: Demo[] = [
   },
   {
     title: 'Browser-Use',
-    description: '浏览器导航、点击与结构化比价抽取。',
+    description: '真实抓取公开网页并结构化抽取。',
     src: './demos/browser-use.mp4',
     poster: './demos/browser-use-poster.jpg',
     external: './demos/browser-use/',

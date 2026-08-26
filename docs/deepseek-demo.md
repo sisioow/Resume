@@ -37,4 +37,4 @@ npx wrangler pages dev dist --compatibility-date=2026-01-01
 | Deep Research | Planner / Search / Critic / Writer 四段真实调用 |
 | KB Agent | 检索切片后 grounded 生成 |
 | CrewAI | 研究员 / 分析师 / 质检官三段真实调用 |
-| Browser-Use | 先用模型规划动作，再驱动舞台动画 |
+| Browser-Use | 用户自助任务 → `/api/browse` 真实抓取 → 模型多步抽取 |
