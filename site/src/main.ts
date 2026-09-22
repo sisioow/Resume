@@ -2,15 +2,14 @@ import './style.css'
 import {
   demos,
   experiences,
+  pageTabs,
   projects,
   repos,
-  showcaseTabs,
   site,
   skillGroups,
   type Demo,
   type Project,
   type Repo,
-  type ShowcaseTab,
   type SkillGroup,
 } from './data'
 
@@ -190,49 +189,40 @@ function renderDemo(d: Demo): string {
   `
 }
 
-function renderMagic(): string {
-  const first = showcaseTabs[0]
+/** Hero 右侧：页面导航 tab，点击跳转对应区块，滚动时高亮当前区块 */
+function renderPageNav(): string {
+  const total = String(pageTabs.length).padStart(2, '0')
   return `
-    <div class="magic" id="magic" aria-label="Agent 与项目切换展示">
-      <div class="magic-bar">
-        <span class="magic-dot"></span>
-        <span class="magic-label">Agent 交付</span>
+    <nav class="pagenav" id="pagenav" aria-label="页面导航">
+      <div class="pagenav-bar">
+        <span class="pagenav-dot"></span>
+        <span class="pagenav-label">页面导航</span>
+        <span class="pagenav-count" id="pagenav-count">01 / ${total}</span>
       </div>
-      <div class="magic-body">
-        <div class="magic-tabs" id="magic-tabs" role="tablist">
-          ${showcaseTabs
-            .map(
-              (tab, i) => `
-            <button
-              type="button"
-              class="magic-tab${i === 0 ? ' is-active' : ''}"
-              role="tab"
-              aria-selected="${i === 0}"
-              data-tab="${tab.id}"
-            >${tab.label}</button>
-          `,
-            )
-            .join('')}
-        </div>
-        <p class="magic-prompt">
-          <span class="magic-prefix" id="magic-prefix">${first.prefix}</span>
-          <span class="magic-name" id="magic-name">${first.items[0].name}</span>
-          <span class="magic-cursor" aria-hidden="true"></span>
-        </p>
-        <div class="magic-transform">
-          <span class="magic-arrow" aria-hidden="true"></span>
-          <span class="magic-out" id="magic-out">${first.items[0].out}</span>
-        </div>
-        <div class="magic-chips" id="magic-chips">
-          ${first.items
-            .map(
-              (m, i) =>
-                `<button type="button" class="magic-chip${i === 0 ? ' is-active' : ''}" data-i="${i}">${m.name}</button>`,
-            )
-            .join('')}
-        </div>
-      </div>
-    </div>
+      <ol class="pagenav-list">
+        ${pageTabs
+          .map(
+            (t, i) => `
+          <li>
+            <a
+              class="pagenav-item${i === 0 ? ' is-active' : ''}"
+              href="#${t.id}"
+              data-target="${t.id}"
+              ${i === 0 ? 'aria-current="true"' : ''}
+            >
+              <span class="pagenav-idx">${String(i + 1).padStart(2, '0')}</span>
+              <span class="pagenav-text">
+                <strong>${t.label}</strong>
+                <em>${t.hint}</em>
+              </span>
+              <span class="pagenav-rail" aria-hidden="true"></span>
+            </a>
+          </li>
+        `,
+          )
+          .join('')}
+      </ol>
+    </nav>
   `
 }
 
@@ -271,7 +261,7 @@ function render(): string {
             <a class="btn btn-ghost" href="#contact">联系我</a>
           </div>
         </div>
-        ${renderMagic()}
+        ${renderPageNav()}
       </section>
 
       ${renderFeatured(featured)}
@@ -413,79 +403,85 @@ if (glow && window.matchMedia('(pointer:fine)').matches) {
   )
 }
 
-const magicName = document.getElementById('magic-name')
-const magicOut = document.getElementById('magic-out')
-const magicPrefix = document.getElementById('magic-prefix')
-const magicChips = document.getElementById('magic-chips')
-const magicTabs = document.getElementById('magic-tabs')
-const magicRoot = document.getElementById('magic')
-let magicTabId: ShowcaseTab['id'] = 'agents'
-let magicIndex = 0
-let magicTimer = 0
+/* —— Hero 右侧页面导航：点击跳转 + 滚动高亮当前区块 —— */
+const pagenavItems = Array.from(
+  document.querySelectorAll<HTMLAnchorElement>('.pagenav-item'),
+)
+const pagenavCount = document.getElementById('pagenav-count')
+const navSections = pageTabs
+  .map((t) => ({ id: t.id, el: document.getElementById(t.id) }))
+  .filter((s): s is { id: string; el: HTMLElement } => s.el !== null)
 
-function currentTab(): ShowcaseTab {
-  return showcaseTabs.find((t) => t.id === magicTabId) ?? showcaseTabs[0]
-}
+const pad2 = (n: number) => String(n).padStart(2, '0')
 
-function renderChips(tab: ShowcaseTab, active = 0) {
-  if (!magicChips) return
-  magicChips.innerHTML = tab.items
-    .map(
-      (m, i) =>
-        `<button type="button" class="magic-chip${i === active ? ' is-active' : ''}" data-i="${i}">${m.name}</button>`,
-    )
-    .join('')
-}
+/** 点击 tab 触发的平滑滚动期间，保持用户点选的高亮，滚动停下后再交还自动高亮 */
+let navClickLock = false
+let navScrollEndTimer = 0
 
-function playMagic(i: number) {
-  const tab = currentTab()
-  magicIndex = ((i % tab.items.length) + tab.items.length) % tab.items.length
-  const item = tab.items[magicIndex]
-  magicChips?.querySelectorAll('.magic-chip').forEach((el, idx) => {
-    el.classList.toggle('is-active', idx === magicIndex)
-  })
-  magicRoot?.classList.remove('is-firing')
-  void magicRoot?.offsetWidth
-  magicRoot?.classList.add('is-firing')
-  if (magicPrefix) magicPrefix.textContent = tab.prefix
-  if (magicName) magicName.textContent = item.name
-  if (magicOut) magicOut.textContent = item.out
-}
-
-function startMagicTimer() {
-  window.clearInterval(magicTimer)
-  magicTimer = window.setInterval(() => {
-    playMagic(magicIndex + 1)
-  }, 3200)
-}
-
-function switchMagicTab(tabId: ShowcaseTab['id']) {
-  magicTabId = tabId
-  magicTabs?.querySelectorAll('.magic-tab').forEach((el) => {
-    const active = el.getAttribute('data-tab') === tabId
+function setActiveNav(id: string) {
+  const index = pageTabs.findIndex((t) => t.id === id)
+  pagenavItems.forEach((el) => {
+    const active = el.dataset.target === id
     el.classList.toggle('is-active', active)
-    el.setAttribute('aria-selected', String(active))
+    if (active) el.setAttribute('aria-current', 'true')
+    else el.removeAttribute('aria-current')
   })
-  const tab = currentTab()
-  renderChips(tab, 0)
-  playMagic(0)
-  startMagicTimer()
+  if (pagenavCount && index >= 0) {
+    pagenavCount.textContent = `${pad2(index + 1)} / ${pad2(pageTabs.length)}`
+  }
 }
 
-magicTabs?.addEventListener('click', (e) => {
-  const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.magic-tab')
-  if (!t?.dataset.tab) return
-  switchMagicTab(t.dataset.tab as ShowcaseTab['id'])
+function syncActiveNav() {
+  if (!navSections.length) return
+  // 页面已到底：末个区块可能永远越不过判定线，直接高亮最后一项
+  const doc = document.documentElement
+  if (window.innerHeight + window.scrollY >= doc.scrollHeight - 2) {
+    setActiveNav(navSections[navSections.length - 1].id)
+    return
+  }
+  // 以视口上方约 1/3 处为判定线，取最后一个越过该线的区块
+  const line = window.scrollY + window.innerHeight * 0.34
+  let current = navSections[0].id
+  for (const s of navSections) {
+    if (s.el.getBoundingClientRect().top + window.scrollY <= line) current = s.id
+  }
+  setActiveNav(current)
+}
+
+let navTicking = false
+window.addEventListener(
+  'scroll',
+  () => {
+    if (navClickLock) {
+      // 滚动仍在进行：不断延后「交还自动高亮」的时刻
+      window.clearTimeout(navScrollEndTimer)
+      navScrollEndTimer = window.setTimeout(() => {
+        navClickLock = false
+      }, 160)
+      return
+    }
+    if (navTicking) return
+    navTicking = true
+    window.requestAnimationFrame(() => {
+      syncActiveNav()
+      navTicking = false
+    })
+  },
+  { passive: true },
+)
+window.addEventListener('resize', syncActiveNav, { passive: true })
+
+pagenavItems.forEach((el) => {
+  el.addEventListener('click', () => {
+    const id = el.dataset.target
+    if (!id) return
+    navClickLock = true
+    window.clearTimeout(navScrollEndTimer)
+    setActiveNav(id)
+  })
 })
 
-magicChips?.addEventListener('click', (e) => {
-  const t = (e.target as HTMLElement).closest<HTMLButtonElement>('.magic-chip')
-  if (!t) return
-  playMagic(Number(t.dataset.i))
-  startMagicTimer()
-})
-
-startMagicTimer()
+syncActiveNav()
 
 /* —— 点击复制邮箱 + toast —— */
 const toastEl = document.getElementById('toast')

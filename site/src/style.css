@@ -222,8 +222,8 @@ button {
   color: var(--accent-deep);
 }
 
-/* 魔法台：点产品名 → 出结果 */
-.magic {
+/* 页面导航 tab：对齐主内容结构，点击跳转 */
+.pagenav {
   justify-self: end;
   width: min(100%, 26rem);
   background: rgba(12, 26, 40, 0.92);
@@ -237,15 +237,7 @@ button {
   transform-origin: center bottom;
 }
 
-.magic.is-firing .magic-out {
-  animation: pop 0.55s ease;
-}
-
-.magic.is-firing .magic-arrow {
-  animation: dash 0.55s ease;
-}
-
-.magic-bar {
+.pagenav-bar {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -257,141 +249,118 @@ button {
   color: rgba(232, 242, 240, 0.65);
 }
 
-.magic-dot {
+.pagenav-dot {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
   background: #3dd6c6;
   box-shadow: 0 0 0 4px rgba(61, 214, 198, 0.2);
   animation: pulse 2.4s ease-in-out infinite;
-}
-
-.magic-body {
-  padding: 1.1rem 1.15rem 1.15rem;
-}
-
-.magic-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-  padding: 0.25rem;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 0.45rem;
-}
-
-.magic-tab {
-  border: none;
-  background: transparent;
-  color: rgba(232, 242, 240, 0.55);
-  padding: 0.45rem 0.5rem;
-  border-radius: 0.35rem;
-  font-size: 0.82rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.magic-tab:hover {
-  color: rgba(232, 242, 240, 0.85);
-}
-
-.magic-tab.is-active {
-  background: rgba(126, 240, 226, 0.14);
-  color: #7ef0e2;
-}
-
-.magic-prompt {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
-  font-weight: 650;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.45rem;
-  line-height: 1.35;
-  min-height: 2.6em;
-}
-
-.magic-prefix {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(232, 242, 240, 0.45);
-}
-
-.magic-name {
-  color: #7ef0e2;
-  word-break: break-word;
-}
-
-.magic-cursor {
-  display: inline-block;
-  width: 0.12rem;
-  height: 1.1em;
-  background: #7ef0e2;
-  animation: blink 1s steps(1) infinite;
-  vertical-align: text-bottom;
-}
-
-.magic-transform {
-  margin-top: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 2.5rem;
-}
-
-.magic-arrow {
-  width: 1.5rem;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #e85d04, #7ef0e2);
-  position: relative;
   flex-shrink: 0;
 }
 
-.magic-arrow::after {
-  content: '';
-  position: absolute;
-  right: -2px;
-  top: -3px;
-  border: 4px solid transparent;
-  border-left-color: #7ef0e2;
+.pagenav-label {
+  flex: 1;
 }
 
-.magic-out {
-  font-weight: 650;
-  font-size: 0.98rem;
-  color: #ffd7a8;
-}
-
-.magic-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 1.05rem;
-}
-
-.magic-chip {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: transparent;
-  color: rgba(232, 242, 240, 0.75);
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+.pagenav-count {
+  font-family: var(--font-display);
   font-size: 0.72rem;
-  line-height: 1.35;
-  text-align: left;
-  max-width: 100%;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  letter-spacing: 0.08em;
+  color: rgba(126, 240, 226, 0.75);
+  font-variant-numeric: tabular-nums;
 }
 
-.magic-chip:hover,
-.magic-chip.is-active {
+.pagenav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.55rem;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.pagenav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.58rem 0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: rgba(232, 242, 240, 0.72);
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+.pagenav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8f2f0;
+}
+
+.pagenav-item:focus-visible {
+  outline: 2px solid rgba(126, 240, 226, 0.7);
+  outline-offset: -2px;
+}
+
+.pagenav-item.is-active {
   background: rgba(126, 240, 226, 0.12);
-  border-color: rgba(126, 240, 226, 0.45);
   color: #7ef0e2;
+}
+
+.pagenav-idx {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  color: rgba(232, 242, 240, 0.32);
+  transition: color 0.22s ease;
+  font-variant-numeric: tabular-nums;
+}
+
+.pagenav-item.is-active .pagenav-idx {
+  color: #7ef0e2;
+}
+
+.pagenav-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.pagenav-text strong {
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.pagenav-text em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: rgba(232, 242, 240, 0.42);
+  transition: color 0.22s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pagenav-item.is-active .pagenav-text em {
+  color: rgba(126, 240, 226, 0.68);
+}
+
+.pagenav-rail {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 0;
+  border-radius: 2px;
+  background: #7ef0e2;
+  transform: translateY(-50%);
+  transition: height 0.24s ease;
+}
+
+.pagenav-item.is-active .pagenav-rail {
+  height: 58%;
 }
 
 /* —— Spotlight 代表作 —— */
@@ -399,6 +368,7 @@ button {
   position: relative;
   padding: clamp(3.5rem, 9vh, 6rem) var(--pad);
   overflow: hidden;
+  scroll-margin-top: 4rem;
 }
 
 .spotlight-glow {
@@ -575,6 +545,7 @@ button {
 
 .section {
   padding: clamp(3rem, 7vh, 4.5rem) var(--pad);
+  scroll-margin-top: 4rem;
 }
 
 .section-alt {
@@ -1028,12 +999,6 @@ button {
   }
 }
 
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 @keyframes pulse {
   0%,
   100% {
@@ -1041,28 +1006,6 @@ button {
   }
   50% {
     opacity: 0.45;
-  }
-}
-
-@keyframes pop {
-  0% {
-    opacity: 0.2;
-    transform: translateY(0.4rem);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes dash {
-  0% {
-    transform: scaleX(0.3);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 1;
   }
 }
 
@@ -1074,9 +1017,18 @@ button {
     padding-top: 5rem;
   }
 
-  .magic {
+  .pagenav {
     justify-self: stretch;
     width: 100%;
+  }
+
+  /* 手机上收成双列紧凑 tab，避免导航把首屏撑得过长 */
+  .pagenav-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pagenav-text em {
+    display: none;
   }
 
   .impact-row {
@@ -1104,11 +1056,8 @@ button {
   .hero h1,
   .hero-lead,
   .hero-cta,
-  .magic,
-  .magic-dot,
-  .magic-cursor,
-  .magic.is-firing .magic-out,
-  .magic.is-firing .magic-arrow,
+  .pagenav,
+  .pagenav-dot,
   .reveal,
   .pointer-glow {
     animation: none !important;

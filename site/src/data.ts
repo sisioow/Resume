@@ -20,40 +20,17 @@ export const site = {
   resumePdf: './resume.pdf',
 }
 
-/** Hero 右侧：可切换 Agent 列表 / 其他项目 */
-export type ShowcaseItem = { name: string; out: string }
+/** Hero 右侧：页面导航 tab，对齐主内容结构，点击跳转对应区块 */
+export type PageTab = { id: string; label: string; hint: string }
 
-export type ShowcaseTab = {
-  id: 'agents' | 'others'
-  label: string
-  prefix: string
-  items: ShowcaseItem[]
-}
-
-export const showcaseTabs: ShowcaseTab[] = [
-  {
-    id: 'agents',
-    label: 'Agent 列表',
-    prefix: 'Agent',
-    items: [
-      { name: 'Deep Research 深度调研', out: '带引用研究报告' },
-      { name: 'RAG知识库智能检索', out: '简历默认库 · 可溯源答复' },
-      { name: 'python+harness架构agent', out: '端到端 Agent 链路就绪' },
-      { name: 'n8n工作流', out: '自动化交付跑通' },
-    ],
-  },
-  {
-    id: 'others',
-    label: '其他项目',
-    prefix: '项目',
-    items: [
-      { name: 'CrewAI 多智能体编排', out: '协作交付可视化' },
-      { name: 'Browser-Use 浏览器 Agent', out: '网页操作自动化' },
-      { name: '多多答题cocos', out: 'Cocos 玩法跑通' },
-      { name: 'android项目（已上架）', out: '多渠道稳定在架' },
-      { name: '要素式诉讼文书辅助填写系统', out: '诉状一键导出' },
-    ],
-  },
+export const pageTabs: PageTab[] = [
+  { id: 'spotlight', label: '代表作', hint: '本地 App 生成工作流' },
+  { id: 'work', label: '其他作品', hint: '垂类 Agent 与项目' },
+  { id: 'repos', label: '仓库源码', hint: '开源仓库直达' },
+  { id: 'demos', label: '演示录屏', hint: '真实运行录制' },
+  { id: 'experience', label: '工作经历', hint: '两段 Agent / AI 全栈' },
+  { id: 'skills', label: '技能', hint: '专业与办公能力' },
+  { id: 'contact', label: '联系', hint: '邮箱 · 电话 · 简历' },
 ]
 
 export const experiences = [
