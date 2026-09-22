@@ -189,40 +189,53 @@ function renderDemo(d: Demo): string {
   `
 }
 
-/** Hero 右侧：页面导航 tab，点击跳转对应区块，滚动时高亮当前区块 */
+/** Hero 右侧：页面导航。默认收成右侧悬浮按钮，悬停/聚焦/点击展开；点击条目跳转对应区块 */
 function renderPageNav(): string {
   const total = String(pageTabs.length).padStart(2, '0')
   return `
-    <nav class="pagenav" id="pagenav" aria-label="页面导航">
-      <div class="pagenav-bar">
-        <span class="pagenav-dot"></span>
-        <span class="pagenav-label">页面导航</span>
-        <span class="pagenav-count" id="pagenav-count">01 / ${total}</span>
-      </div>
-      <ol class="pagenav-list">
-        ${pageTabs
-          .map(
-            (t, i) => `
-          <li>
-            <a
-              class="pagenav-item${i === 0 ? ' is-active' : ''}"
-              href="#${t.id}"
-              data-target="${t.id}"
-              ${i === 0 ? 'aria-current="true"' : ''}
-            >
-              <span class="pagenav-idx">${String(i + 1).padStart(2, '0')}</span>
-              <span class="pagenav-text">
-                <strong>${t.label}</strong>
-                <em>${t.hint}</em>
-              </span>
-              <span class="pagenav-rail" aria-hidden="true"></span>
-            </a>
-          </li>
-        `,
-          )
-          .join('')}
-      </ol>
-    </nav>
+    <div class="pagenav-dock" id="pagenav-dock">
+      <nav class="pagenav" id="pagenav" aria-label="页面导航">
+        <div class="pagenav-bar">
+          <span class="pagenav-dot"></span>
+          <span class="pagenav-label">页面导航</span>
+          <span class="pagenav-count" id="pagenav-count">01 / ${total}</span>
+        </div>
+        <ol class="pagenav-list">
+          ${pageTabs
+            .map(
+              (t, i) => `
+            <li>
+              <a
+                class="pagenav-item${i === 0 ? ' is-active' : ''}"
+                href="#${t.id}"
+                data-target="${t.id}"
+                ${i === 0 ? 'aria-current="true"' : ''}
+              >
+                <span class="pagenav-idx">${String(i + 1).padStart(2, '0')}</span>
+                <span class="pagenav-text">
+                  <strong>${t.label}</strong>
+                  <em>${t.hint}</em>
+                </span>
+                <span class="pagenav-rail" aria-hidden="true"></span>
+              </a>
+            </li>
+          `,
+            )
+            .join('')}
+        </ol>
+      </nav>
+      <button
+        type="button"
+        class="pagenav-toggle"
+        id="pagenav-toggle"
+        aria-expanded="false"
+        aria-controls="pagenav"
+        aria-label="展开页面导航"
+      >
+        <span class="pagenav-toggle-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="pagenav-toggle-idx" id="pagenav-toggle-idx">01</span>
+      </button>
+    </div>
   `
 }
 
@@ -403,7 +416,10 @@ if (glow && window.matchMedia('(pointer:fine)').matches) {
   )
 }
 
-/* —— Hero 右侧页面导航：点击跳转 + 滚动高亮当前区块 —— */
+/* —— 页面导航：悬浮收起/展开 + 点击跳转 + 滚动高亮 —— */
+const pagenavDock = document.getElementById('pagenav-dock')
+const pagenavToggle = document.getElementById('pagenav-toggle')
+const pagenavToggleIdx = document.getElementById('pagenav-toggle-idx')
 const pagenavItems = Array.from(
   document.querySelectorAll<HTMLAnchorElement>('.pagenav-item'),
 )
@@ -418,6 +434,11 @@ const pad2 = (n: number) => String(n).padStart(2, '0')
 let navClickLock = false
 let navScrollEndTimer = 0
 
+function setDockOpen(open: boolean) {
+  pagenavDock?.toggleAttribute('data-open', open)
+  pagenavToggle?.setAttribute('aria-expanded', String(open))
+}
+
 function setActiveNav(id: string) {
   const index = pageTabs.findIndex((t) => t.id === id)
   pagenavItems.forEach((el) => {
@@ -426,9 +447,11 @@ function setActiveNav(id: string) {
     if (active) el.setAttribute('aria-current', 'true')
     else el.removeAttribute('aria-current')
   })
-  if (pagenavCount && index >= 0) {
+  if (index < 0) return
+  if (pagenavCount) {
     pagenavCount.textContent = `${pad2(index + 1)} / ${pad2(pageTabs.length)}`
   }
+  if (pagenavToggleIdx) pagenavToggleIdx.textContent = pad2(index + 1)
 }
 
 function syncActiveNav() {
@@ -471,6 +494,10 @@ window.addEventListener(
 )
 window.addEventListener('resize', syncActiveNav, { passive: true })
 
+pagenavToggle?.addEventListener('click', () => {
+  setDockOpen(!pagenavDock?.hasAttribute('data-open'))
+})
+
 pagenavItems.forEach((el) => {
   el.addEventListener('click', () => {
     const id = el.dataset.target
@@ -478,7 +505,18 @@ pagenavItems.forEach((el) => {
     navClickLock = true
     window.clearTimeout(navScrollEndTimer)
     setActiveNav(id)
+    setDockOpen(false)
   })
+})
+
+// 点击浮窗外部或按 Esc 收起
+document.addEventListener('click', (e) => {
+  if (!pagenavDock?.hasAttribute('data-open')) return
+  if (pagenavDock.contains(e.target as Node)) return
+  setDockOpen(false)
+})
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setDockOpen(false)
 })
 
 syncActiveNav()

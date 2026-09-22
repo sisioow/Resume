@@ -132,11 +132,11 @@ button {
   color: var(--accent-deep);
 }
 
-/* —— Hero：品牌 + 一句钩子 + 可玩魔法台 —— */
+/* —— Hero：品牌 + 一句钩子（导航改为右侧悬浮浮窗，不再占用栅格） —— */
 .hero {
   min-height: min(100vh, 54rem);
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1fr;
   gap: clamp(1.5rem, 4vw, 3rem);
   align-items: center;
   padding: clamp(4.5rem, 12vh, 7rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
@@ -222,10 +222,22 @@ button {
   color: var(--accent-deep);
 }
 
-/* 页面导航 tab：对齐主内容结构，点击跳转 */
+/* 页面导航：默认收成右侧悬浮按钮，悬停/聚焦/点击展开 */
+.pagenav-dock {
+  position: fixed;
+  top: 50%;
+  right: var(--pad);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transform: translateY(-50%);
+  animation: rise-center 0.9s ease 0.2s both;
+}
+
 .pagenav {
-  justify-self: end;
-  width: min(100%, 26rem);
+  width: min(22rem, calc(100vw - 8rem));
+  flex: none;
   background: rgba(12, 26, 40, 0.92);
   color: #e8f2f0;
   border-radius: 0.85rem;
@@ -233,8 +245,81 @@ button {
   box-shadow:
     0 24px 60px rgba(12, 26, 40, 0.22),
     0 0 0 1px rgba(255, 255, 255, 0.06);
-  animation: rise 0.9s ease 0.2s both;
-  transform-origin: center bottom;
+  transform-origin: center right;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(0.7rem) scale(0.96);
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease,
+    visibility 0.24s ease;
+}
+
+.pagenav-dock:hover .pagenav,
+.pagenav-dock:focus-within .pagenav,
+.pagenav-dock[data-open] .pagenav {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+
+/* 收起态：右侧悬浮按钮 */
+.pagenav-toggle {
+  flex: none;
+  width: 2.9rem;
+  padding: 0.66rem 0 0.58rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.34rem;
+  border: none;
+  border-radius: 0.85rem;
+  background: rgba(12, 26, 40, 0.92);
+  color: #e8f2f0;
+  box-shadow:
+    0 18px 44px rgba(12, 26, 40, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: background 0.22s ease, transform 0.22s ease;
+}
+
+.pagenav-toggle:hover {
+  background: #0c1a28;
+  transform: translateX(-2px);
+}
+
+.pagenav-toggle:focus-visible {
+  outline: 2px solid rgba(126, 240, 226, 0.75);
+  outline-offset: 2px;
+}
+
+.pagenav-toggle-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 1.05rem;
+}
+
+.pagenav-toggle-icon i {
+  display: block;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.pagenav-toggle-icon i:nth-child(2) {
+  width: 68%;
+}
+
+.pagenav-toggle-idx {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: rgba(126, 240, 226, 0.85);
+  font-variant-numeric: tabular-nums;
 }
 
 .pagenav-bar {
@@ -277,6 +362,8 @@ button {
   padding: 0.55rem;
   display: grid;
   gap: 0.15rem;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
 }
 
 .pagenav-item {
@@ -999,6 +1086,17 @@ button {
   }
 }
 
+@keyframes rise-center {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 1.1rem));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
 @keyframes pulse {
   0%,
   100% {
@@ -1017,12 +1115,26 @@ button {
     padding-top: 5rem;
   }
 
-  .pagenav {
-    justify-self: stretch;
-    width: 100%;
+  /* 手机上不用悬浮浮窗，直接摊在首屏里，收成双列紧凑 tab */
+  .pagenav-dock {
+    position: static;
+    transform: none;
+    display: block;
+    animation: none;
   }
 
-  /* 手机上收成双列紧凑 tab，避免导航把首屏撑得过长 */
+  .pagenav-toggle {
+    display: none;
+  }
+
+  .pagenav {
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
   .pagenav-list {
     grid-template-columns: 1fr 1fr;
   }
@@ -1056,7 +1168,6 @@ button {
   .hero h1,
   .hero-lead,
   .hero-cta,
-  .pagenav,
   .pagenav-dot,
   .reveal,
   .pointer-glow {
@@ -1064,5 +1175,14 @@ button {
     transition: none !important;
     opacity: 1;
     transform: none;
+  }
+
+  /* 悬浮浮窗需保留 translateY(-50%) 居中，只关动画 */
+  .pagenav-dock {
+    animation: none !important;
+  }
+
+  .pagenav {
+    transition: none !important;
   }
 }
