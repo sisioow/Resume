@@ -335,16 +335,6 @@ export type Demo = {
 
 export const demos: Demo[] = [
   {
-    title: 'Deep Research',
-    description: '多智能体深度调研：证据池 + 冲突裁决 + 带引用成稿。',
-    external: './demos/deep-research/',
-  },
-  {
-    title: 'RAG知识库智能检索',
-    description: '默认「我的简历」知识库：切片命中、Rerank 与带引用作答。',
-    external: './demos/kb-agent/',
-  },
-  {
     title: 'workflow_uniapp',
     description: '从产品名到可交付 UniApp 工程。',
     src: './demos/workflow-uniapp.mp4',

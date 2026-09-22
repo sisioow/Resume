@@ -207,11 +207,29 @@ async function start() {
         await sleep(200)
         if (abort) break
 
-        page = await browse(target)
-        renderPage(page)
-        logAction(`已抓取 · ${page.title || page.url}（${page.chars || 0} 字）`, 'extract')
-        moveCursor(45, 55)
-        await sleep(350)
+        try {
+          page = await browse(target)
+          renderPage(page)
+          logAction(`已抓取 · ${page.title || page.url}（${page.chars || 0} 字）`, 'extract')
+          moveCursor(45, 55)
+          await sleep(350)
+        } catch (browseErr) {
+          const tip = browseErr.suggestions?.length
+            ? ` 可尝试：${browseErr.suggestions.slice(0, 3).join(' / ')}`
+            : ''
+          logAction(`抓取失败：${browseErr.message}${tip}`)
+          think(`${browseErr.message}${tip} 将换一个地址重试…`)
+          pageEl.innerHTML = `<div class="splash"><strong>页面不可用</strong><p>${DemoLLM.escapeHtml(browseErr.message)}</p></div>`
+          history.push({
+            step: i,
+            thought: 'navigate failed',
+            action: 'navigate_error',
+            url: target,
+            error: browseErr.message,
+            suggestions: browseErr.suggestions || [],
+          })
+          page = null
+        }
         continue
       }
 
